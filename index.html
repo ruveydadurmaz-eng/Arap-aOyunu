@@ -1,0 +1,1141 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>İnteraktif Arapça Öğrenme Platformu</title>
+    <style>
+        :root {
+            --primary: #2c3e50;
+            --accent: #27ae60;
+            --bg: #f4f7f6;
+            --card-bg: #ffffff;
+            --selected: #f39c12;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg);
+            color: #333;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 850px;
+            background: var(--card-bg);
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+
+        header {
+            text-align: center;
+            border-bottom: 2px solid #eee;
+            padding-bottom: 15px;
+            margin-bottom: 20px;
+        }
+
+        .level-control {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #eef2f5;
+            padding: 12px 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        select {
+            padding: 8px 12px;
+            border-radius: 6px;
+            border: 1px solid #ccc;
+            font-size: 1rem;
+        }
+
+        .badge {
+            background-color: var(--primary);
+            color: #fff;
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: bold;
+        }
+
+        .mode-selector {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .mode-btn {
+            padding: 10px 16px;
+            border: none;
+            background-color: #e0e0e0;
+            cursor: pointer;
+            border-radius: 6px;
+            font-weight: bold;
+            transition: 0.2s;
+        }
+
+        .mode-btn.active {
+            background-color: var(--accent);
+            color: white;
+        }
+
+        .game-area {
+            min-height: 320px;
+            border: 2px dashed #ddd;
+            border-radius: 8px;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .audio-controls {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .audio-btn {
+            background: #3498db;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: 0.2s;
+        }
+
+        .audio-btn.slow {
+            background: #e67e22;
+        }
+
+        .virtual-keyboard {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            margin-top: 15px;
+            width: 100%;
+            max-width: 650px;
+            direction: rtl;
+        }
+
+        .keyboard-row {
+            display: flex;
+            justify-content: center;
+            gap: 5px;
+        }
+
+        .key-btn {
+            padding: 10px;
+            min-width: 36px;
+            font-size: 1.2rem;
+            background: #fff;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            cursor: pointer;
+            user-select: none;
+            box-shadow: 0 2px 0 #ccc;
+        }
+
+        .key-btn:active {
+            transform: translateY(2px);
+            box-shadow: none;
+        }
+
+        .key-btn.wide {
+            min-width: 70px;
+            font-size: 0.9rem;
+            background-color: #e9ecef;
+        }
+
+        .match-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            width: 100%;
+        }
+
+        .match-column {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .match-card {
+            padding: 12px;
+            background: #f8f9fa;
+            border: 2px solid #ced4da;
+            border-radius: 8px;
+            cursor: pointer;
+            text-align: center;
+            font-size: 1.3rem;
+            transition: 0.2s;
+            direction: rtl;
+        }
+
+        .match-card.turkish {
+            direction: ltr;
+            font-size: 1.1rem;
+        }
+
+        .match-card.selected {
+            border-color: var(--selected);
+            background-color: #fef9e7;
+        }
+
+        .match-card.matched {
+            visibility: hidden;
+        }
+
+        .arabic-text {
+            font-size: 1.8rem;
+            direction: rtl;
+            margin: 15px 0;
+            color: var(--primary);
+            line-height: 2.2;
+            text-align: justify;
+        }
+
+        /* Tıklanabilir Kelime / Sözlük Özelliği */
+        .clickable-word {
+            position: relative;
+            display: inline-block;
+            cursor: pointer;
+            padding: 0 4px;
+            border-radius: 4px;
+            transition: background-color 0.2s, color 0.2s;
+        }
+
+        .clickable-word:hover {
+            background-color: #e8f5e9;
+            color: #27ae60;
+        }
+
+        .word-popup {
+            position: absolute;
+            bottom: 115%;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: #2c3e50;
+            color: #fff;
+            padding: 5px 10px;
+            border-radius: 6px;
+            font-size: 0.9rem;
+            font-family: 'Segoe UI', sans-serif;
+            white-space: nowrap;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+            z-index: 100;
+            pointer-events: none;
+            direction: ltr;
+            display: none;
+        }
+
+        .word-popup::after {
+            content: '';
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            margin-left: -5px;
+            border-width: 5px;
+            border-style: solid;
+            border-color: #2c3e50 transparent transparent transparent;
+        }
+
+        .clickable-word.active-word {
+            background-color: #fff3cd;
+            color: #856404;
+        }
+
+        .clickable-word.active-word .word-popup {
+            display: block;
+        }
+
+        .story-container {
+            width: 100%;
+            background: #fdfdfd;
+            border: 1px solid #e2e8f0;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        .story-title {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #2c3e50;
+            text-align: center;
+            margin-bottom: 10px;
+            direction: rtl;
+            line-height: 2;
+        }
+
+        .story-translation {
+            font-size: 0.95rem;
+            color: #666;
+            margin-top: 15px;
+            padding-top: 10px;
+            border-top: 1px dashed #ccc;
+            line-height: 1.5;
+        }
+
+        .story-hint-text {
+            font-size: 0.85rem;
+            color: #27ae60;
+            text-align: center;
+            margin-bottom: 10px;
+            font-weight: bold;
+        }
+
+        .question-box {
+            width: 100%;
+            margin-top: 15px;
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            border-left: 4px solid var(--accent);
+        }
+
+        .question-title {
+            font-weight: bold;
+            font-size: 1.1rem;
+            margin-bottom: 10px;
+            color: #333;
+        }
+
+        .options-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            width: 100%;
+            margin-top: 15px;
+        }
+
+        .option-btn, .word-btn {
+            padding: 12px;
+            background: #f8f9fa;
+            border: 1px solid #ced4da;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 1.1rem;
+            transition: 0.2s;
+        }
+
+        .sentence-box {
+            min-height: 50px;
+            width: 100%;
+            border: 2px solid #27ae60;
+            border-radius: 6px;
+            margin-bottom: 15px;
+            display: flex;
+            gap: 10px;
+            padding: 10px;
+            justify-content: center;
+            direction: rtl;
+            flex-wrap: wrap;
+        }
+
+        .words-container {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            justify-content: center;
+            direction: rtl;
+        }
+
+        .dictation-input {
+            width: 80%;
+            padding: 12px;
+            font-size: 1.3rem;
+            direction: rtl;
+            text-align: center;
+            border: 2px solid #ccc;
+            border-radius: 6px;
+            margin: 15px 0;
+        }
+
+        .footer-controls {
+            margin-top: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .action-btn {
+            padding: 10px 20px;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+
+        .match-instruction {
+            font-weight: bold;
+            color: #d35400;
+            margin-bottom: 15px;
+            font-size: 1.1rem;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <header>
+        <h2>İnteraktif Arapça Öğrenme Platformu</h2>
+    </header>
+
+    <div class="level-control">
+        <div>
+            <label for="levelSelect"><strong>Zorluk Seviyesi:</strong></label>
+            <select id="levelSelect" onchange="manualLevelSelect(this.value)">
+                <option value="1">1. Seviye - Başlangıç (A1)</option>
+                <option value="2">2. Seviye - Temel (A2)</option>
+                <option value="3">3. Seviye - Orta Altı (B1)</option>
+                <option value="4">4. Seviye - Orta (B2)</option>
+                <option value="5">5. Seviye - İleri Altı (C1)</option>
+                <option value="6">6. Seviye - İleri (C2)</option>
+            </select>
+        </div>
+        <span id="levelStatus" class="badge">Aktif: 1. Seviye</span>
+    </div>
+
+    <div class="mode-selector">
+        <button class="mode-btn active" onclick="switchMode('matching', event)">Çoklu Eşleştirme</button>
+        <button class="mode-btn" onclick="switchMode('completion', event)">Cümle Tamamlama</button>
+        <button class="mode-btn" onclick="switchMode('sentence', event)">Cümle Kurma</button>
+        <button class="mode-btn" onclick="switchMode('dictation', event)">Sesli Dikte</button>
+        <button class="mode-btn" onclick="switchMode('story', event)">Okuma & Metin (Hikaye)</button>
+    </div>
+
+    <div class="game-area" id="gameArea"></div>
+
+    <div class="footer-controls">
+        <div id="scoreDisplay">Puan: 0</div>
+        <div id="progressDisplay">Alıştırma: 1 / 30</div>
+        <button class="action-btn" onclick="nextQuestion()">Sonraki</button>
+    </div>
+</div>
+
+<script>
+    const arabicKeyboardLayout = [
+        ["ض", "ص", "ث", "ق", "ف", "غ", "ع", "ه", "خ", "ح", "ج", "د"],
+        ["ش", "س", "ي", "ب", "ل", "ا", "ت", "ن", "م", "ك", "ط"],
+        ["ئ", "ء", "ؤ", "ر", "لا", "ى", "ة", "و", "ز", "ظ"]
+    ];
+
+    // Eş ve Zıt Anlamlı Veri Havuzu
+    const wordPool = {
+        1: [
+            { ar: "كَبِير", tr: "Büyük", syn: "عَظِيم", ant: "صَغِير" },
+            { ar: "جَمِيل", tr: "Güzel", syn: "حَسَن", ant: "قَبِيح" },
+            { ar: "قَرِيب", tr: "Yakın", syn: "دَانٍ", ant: "بَعِيد" },
+            { ar: "سَرِيع", tr: "Hızlı", syn: "عَاجِل", ant: "بَطِيء" },
+            { ar: "سَعِيد", tr: "Mutlu", syn: "مَسْرُور", ant: "حَزِين" },
+            { ar: "كِتَاب", tr: "Kitap", syn: "مُصْحَف", ant: "-" },
+            { ar: "صَدِيق", tr: "Dost", syn: "صَاحِب", ant: "عَدُوّ" },
+            { ar: "جَدِيد", tr: "Yeni", syn: "حَدِيث", ant: "قَدِيم" }
+        ],
+        2: [
+            { ar: "عَالِم", tr: "Alim / Bilen", syn: "عَارِف", ant: "جَاهِل" },
+            { ar: "قَوِيّ", tr: "Güçlü", syn: "شَدِيد", ant: "ضَعِيف" },
+            { ar: "كَرِيم", tr: "Cömert", syn: "سَخِيّ", ant: "بَخِيل" },
+            { ar: "صَادِق", tr: "Doğru Söyleyen", syn: "أَمِين", ant: "كَاذِب" },
+            { ar: "نَظِيف", tr: "Temiz", syn: "طَاهِر", ant: "وَسِخ" },
+            { ar: "سَهْل", tr: "Kolay", syn: "بَسِيط", ant: "صَعْب" },
+            { ar: "نُور", tr: "Işık", syn: "ضَوْء", ant: "ظَلاَم" },
+            { ar: "حَيَاة", tr: "Hayat", syn: "عَيْش", ant: "مَوْت" }
+        ],
+        3: [
+            { ar: "أَمَل", tr: "Umut", syn: "رَجَاء", ant: "يَأْس" },
+            { ar: "بَدَأَ", tr: "Başladı", syn: "شَرَعَ", ant: "انْتَهَى" },
+            { ar: "شَجَاع", tr: "Cesur", syn: "بَاسِل", ant: "جَبَان" },
+            { ar: "فَرَح", tr: "Sevinç", syn: "سُرُور", ant: "حُزْن" },
+            { ar: "زِيَادَة", tr: "Artış", syn: "نَمَاء", ant: "نُقْصَان" }
+        ],
+        4: [
+            { ar: "عَدْل", tr: "Adalet", syn: "قِسْط", ant: "ظُلْم" },
+            { ar: "نَصْر", tr: "Zafer", syn: "فَوْز", ant: "هَزِيمَة" },
+            { ar: "إِيمَان", tr: "İnanç", syn: "تَصْدِيق", ant: "كُفْر" },
+            { ar: "صِحَّة", tr: "Sağlık", syn: "عَافِيَة", ant: "مَرَض" }
+        ],
+        5: [
+            { ar: "حِكْمَة", tr: "Hikmet", syn: "صَوَاب", ant: "سَفَاهَة" },
+            { ar: "مَحَبَّة", tr: "Sevgi", syn: "وُدّ", ant: "كُرْه" },
+            { ar: "أَمْن", tr: "Güvenlik", syn: "سَلاَم", ant: "خَوْف" }
+        ],
+        6: [
+            { ar: "عَلَنِيَّة", tr: "Açıklık", syn: "إِشْهَار", ant: "سِرّ" },
+            { ar: "بَقَاء", tr: "Kalıcılık", syn: "دَوَام", ant: "فَنَاء" },
+            { ar: "صَلَاح", tr: "İyilik", syn: "خَيْر", ant: "فَسَاد" }
+        ]
+    };
+
+    // Uzun Hikaye / Metin Veri Havuzu ve Metin İçi Kelime Sözlükleri
+    const storyPool = {
+        1: [
+            {
+                title: "يَوْمٌ جَمِيلٌ فِي الْحَدِيقَةِ",
+                text: "فِي صَبَاحِ يَوْمِ الأَحَدِ، أَسْتَيْقِظُ مُبَكِّرًا وَأَشْرَبُ الْحَلِيبَ. الطَّقْسُ جَمِيلٌ وَالشَّمْسُ مُشْرِقَةٌ. أَذْهَبُ مَعَ عَائِلَتِي إِلَى حَدِيقَةِ الْمَدِينَةِ. الْحَدِيقَةُ كَبِيرَةٌ وَفِيهَا أَشْجَارٌ خَضْرَاءُ وَأَزْهَارٌ مُلَوَّنَةٌ. يَلْعَبُ أَخِي الصَّغِيرُ بِالْكُرَةِ، وَأَنَا أَقْرَأُ كِتَابًا جَدِيدًا تَحْتَ الشَّجَرَةِ. نَأْكُلُ الطَّعَامَ اللَّذِيذَ وَنَشْرَبُ الشَّايَ. نَحْنُ سُعَدَاءُ جِدًّا بِهَذَا الْيَوْمِ.",
+                tr: "Pazar sabahı erken uyanırım ve süt içerim. Hava güzel ve güneş parlaktır. Ailemle birlikte şehir parkına giderim. Park büyüktür, içinde yeşil ağaçlar ve renkli çiçekler vardır. Küçük erkek kardeşim topla oynar, ben ise ağacın altında yeni bir kitap okurum. Lezzetli yemekler yer ve çay içeriz. Bu günden dolayı çok mutluyuz.",
+                dictionary: {
+                    "يَوْمٌ": "gün / bir gün", "جَمِيلٌ": "güzeldir / güzel", "فِي": "de/da / içinde", "الْحَدِيقَةِ": "parkta / bahçede",
+                    "صَبَاحِ": "sabahında", "يَوْمِ": "günü", "الأَحَدِ": "Pazar",
+                    "أَسْتَيْقِظُ": "uyanırım", "مُبَكِّرًا": "erken", "وَأَشْرَبُ": "ve içerim", "الْحَلِيبَ": "süt",
+                    "الطَّقْسُ": "hava", "وَالشَّمْسُ": "ve güneş", "مُشْرِقَةٌ": "parlaktır",
+                    "أَذْهَبُ": "giderim", "مَعَ": "ile birlikte", "عَائِلَتِي": "ailem", "إِلَى": "e/a doğru",
+                    "حَدِيقَةِ": "parkına", "الْمَدِينَةِ": "şehrin", "الْحَدِيقَةُ": "park", "كَبِيرَةٌ": "büyüktür",
+                    "وَفِيهَا": "ve orada vardır", "أَشْجَارٌ": "ağaçlar", "خَضْرَاءُ": "yeşil", "وَأَزْهَارٌ": "ve çiçekler",
+                    "مُلَوَّنَةٌ": "renkli", "يَلْعَبُ": "oynar", "أَخِي": "kardeşim", "الصَّغِيرُ": "küçük",
+                    "بِالْكُرَةِ": "topla", "وَأَنَا": "ve ben", "أَقْرَأُ": "okuyorum", "كِتَابًا": "bir kitap",
+                    "جَدِيدًا": "yeni", "تَحْتَ": "altında", "الشَّجَرَةِ": "ağacın", "نَأْكُلُ": "yeriz",
+                    "الطَّعَامَ": "yemeği", "اللَّذِيذَ": "lezzetli", "وَنَشْرَبُ": "ve içeriz", "الشَّايَ": "çay",
+                    "نَحْنُ": "biz", "سُعَدَاءُ": "mutluyuz", "جِدًّا": "çok", "بِهَذَا": "bu", "الْيَوْمِ": "günden"
+                },
+                question: "مَاذَا يَفْعَلُ الأَخُ الصَّغِيرُ فِي الْحَدِيقَةِ؟ (Küçük kardeş parkta ne yapıyor?)",
+                options: ["يَقْرَأُ كِتَابًا", "يَلْعَبُ بِالْكُرَةِ", "يَشْرَبُ الشَّايَ", "يَنَامُ تَحْتَ الشَّجَرَةِ"],
+                correct: "يَلْعَبُ بِالْكُرَةِ"
+            }
+        ],
+        2: [
+            {
+                title: "رِحْلَةٌ إِلَى السُّوقِ الْقَدِيمِ",
+                text: "فِي الْأُسْبُوعِ الْمَاضِي، زُرْتُ السُّوقَ الْقَدِيمَ مَعَ صَدِيقِي خَالِدٍ. كَانَ السُّوقُ مُزْدَحِمًا بِالنَّاسِ وَالْبَضَائِعِ. رَأَيْنَا دَكَاكِينَ تَبِيعُ الْمَلَابِسَ التَّقْلِيدِيَّةَ وَالْحَلَوِيَاتِ وَالْبُهَارَاتِ الزَّاكِيَةَ. اشْتَرَى خَالِدٌ قَمِيصًا أَبْيَضَ جَمِيلًا، وَاشْتَرَيْتُ أَنَا كِتَابًا عَنْ تَارِيخِ الْمَدِينَةِ. بَعْدَ التَّسَوُّقِ، جَلَسْنَا فِي مَقْهَى شَعْبِيٍّ وَشَرِبْنَا الْقَهْوَةَ الْعَرَبِيَّةَ. كَانَتْ رِحْلَةً مُفِيدَةً وَمُمْتِعَةً كَثِيرًا.",
+                tr: "Geçen hafta arkadaşım Halid ile eski çarşıyı ziyaret ettim. Çarşı insanlar ve mallarla doluydu. Geleneksel kıyafetler, tatlılar ve lezzetli baharatlar satan dükkanlar gördük. Halid güzel beyaz bir gömlek satın aldı, ben ise şehrin tarihi hakkında bir kitap satın aldım. Alışverişten sonra geleneksel bir kafede oturduk ve Arap kahvesi içtik. Çok faydalı ve eğlenceli bir geziydi.",
+                dictionary: {
+                    "رِحْلَةٌ": "yolculuk / gezi", "إِلَى": "e/a", "السُّوقِ": "çarşıya", "الْقَدِيمِ": "eski",
+                    "فِي": "de/da", "الْأُسْبُوعِ": "haftada", "الْمَاضِي،": "geçen", "زُرْتُ": "ziyaret ettim",
+                    "السُّوقَ": "çarşıyı", "الْقَدِيمَ": "eski", "مَعَ": "ile", "صَدِيقِي": "arkadaşım",
+                    "خَالِدٍ.": "Halid", "كَانَ": "idi", "مُزْدَحِمًا": "kalabalık", "بِالنَّاسِ": "insanlarla",
+                    "وَالْبَضَائِعِ.": "ve mallarla", "رَأَيْنَا": "gördük", "دَكَاكِينَ": "dükkanlar", "تَبِيعُ": "satan",
+                    "الْمَلَابِسَ": "kıyafetleri", "التَّقْلِيدِيَّةَ": "geleneksel", "وَالْحَلَوِيَاتِ": "ve tatlıları",
+                    "وَالْبُهَارَاتِ": "ve baharatları", "الزَّاكِيَةَ.": "lezzetli/hoş", "اشْتَرَى": "satın aldı",
+                    "خَالِدٌ": "Halid", "قَمِيصًا": "gömlek", "أَبْيَضَ": "beyaz", "جَمِيلًا،": "güzel",
+                    "وَاشْتَرَيْتُ": "ve satın aldım", "أَنَا": "ben", "كِتَابًا": "kitap", "عَنْ": "hakkında",
+                    "تَارِيخِ": "tarihi", "الْمَدِينَةِ.": "şehrin", "بَعْدَ": "sonra", "التَّسَوُّقِ،": "alışverişten",
+                    "جَلَسْنَا": "oturduk", "مَقْهَى": "kafe/kahvehane", "شَعْبِيٍّ": "geleneksel/halk",
+                    "وَشَرِبْنَا": "ve içtik", "الْقَهْوَةَ": "kahve", "الْعَرَبِيَّةَ.": "Arap", "كَانَتْ": "idi",
+                    "رِحْلَةً": "bir gezi", "مُفِيدَةً": "faydalı", "وَمُمْتِعَةً": "ve eğlenceli", "كَثِيرًا.": "çok"
+                },
+                question: "مَاذَا اشْتَرَى خَالِدٌ مِنَ السُّوقِ؟ (Halid çarşıdan ne satın aldı?)",
+                options: ["كِتَابًا عَنِ التَّارِيخِ", "قَهْوَةً عَرَبِيَّةً", "قَمِيصًا أَبْيَضَ", "بُهَارَاتٍ زَاكِيَةً"],
+                correct: "قَمِيصًا أَبْيَضَ"
+            }
+        ],
+        3: [
+            {
+                title: "أَهَمِّيَّةُ القِرَاءَةِ فِي حَيَاتِنَا",
+                text: "تُعْتَبَرُ القِرَاءَةُ مِنْ أَهَمِّ العَادَاتِ الَّتِي تُغَذِّي العَقْلَ وَتُوَسِّعُ المَدَارِكَ. عِنْدَمَا يَقْرَأُ الإِنْسَانُ كِتَابًا، فَإِنَّهُ يَنْتَقِلُ إِلَى عَوَالِمَ جَدِيدَةٍ وَيَتَعَرَّفُ عَلَى ثَقَافَاتٍ مُخْتَلِفَةٍ دُونَ أَنْ يَتَحَرَّكَ مِنْ مَكَانِهِ. تُسَاعِدُ القِرَاءَةُ أَيْضًا فِي تَحْسِينِ اللُّغَةِ وَزِيَادَةِ المَفْرُودَاتِ. لِذَلِكَ، يَجِبُ عَلَى كُلِّ شَخْصٍ أَنْ يَجْعَلَ القِرَاءَةَ جُزْءًا يَوْمِيًّا مِنْ حَيَاتِهِ، وَلَوْ لِمُدَّةِ نِصْفِ سَاعَةٍ كُلَّ يَوْمٍ.",
+                tr: "Okuma, zihni besleyen ve ufku genişleten en önemli alışkanlıklardan biri kabul edilir. İnsan bir kitap okuduğunda, oturduğu yerden kalkmadan yeni dünyalara taşınır ve farklı kültürleri tanır. Okuma aynı zamanda dili geliştirmeye ve kelime dağarcığını artırmaya yardımcı olur. Bu nedenle, her insanın her gün yarım saat bile olsa okumayı hayatının günlük bir parçası haline getirmesi gerekir.",
+                dictionary: {
+                    "أَهَمِّيَّةُ": "önemi", "القِرَاءَةِ": "okumanın", "فِي": "de/da", "حَيَاتِنَا": "hayatımızdaki",
+                    "تُعْتَبَرُ": "kabul edilir", "القِرَاءَةُ": "okuma", "مِنْ": "den/dan", "أَهَمِّ": "en önemli",
+                    "العَادَاتِ": "alışkanlıklardan", "الَّتِي": "ki o", "تُغَذِّي": "besler", "العَقْلَ": "zihni/aklı",
+                    "وَتُوَسِّعُ": "ve genişletir", "المَدَارِكَ.": "ufku/idraki", "عِنْدَمَا": "dığında/zaman",
+                    "يَقْرَأُ": "okur", "الإِنْسَانُ": "insan", "كِتَابًا،": "bir kitap", "فَإِنَّهُ": "şüphesiz o",
+                    "يَنْتَقِلُ": "taşınır/geçer", "إِلَى": "e/a", "عَوَالِمَ": "dünyalara", "جَدِيدَةٍ": "yeni",
+                    "وَيَتَعَرَّفُ": "ve tanır", "عَلَى": "üzerine/hakkında", "ثَقَافَاتٍ": "kültürler",
+                    "مُخْتَلِفَةٍ": "farklı", "دُونَ": "meksizin/-sız", "أَنْ": "mek/mak", "يَتَحَرَّكَ": "hareket etmek",
+                    "مِنْ": "den", "مَكَانِهِ.": "yerinden", "تُسَاعِدُ": "yardım eder", "أَيْضًا": "de/da / ayrıca",
+                    "تَحْسِينِ": "geliştirmede", "اللُّغَةِ": "dili", "وَزِيَادَةِ": "ve artırmada",
+                    "المَفْرُودَاتِ.": "kelimeleri", "لِذَلِكَ،": "bu yüzden", "يَجِبُ": "gerekir", "كُلِّ": "her",
+                    "شَخْصٍ": "kişinin", "يَجْعَلَ": "yapması/kılması", "جُزْءًا": "bir parça", "يَوْمِيًّا": "günlük",
+                    "حَيَاتِهِ،": "hayatının", "وَلَوْ": "bile olsa", "لِمُدَّةِ": "süresince", "نِصْفِ": "yarım",
+                    "سَاعَةٍ": "saat", "كُلَّ": "her", "يَوْمٍ.": "gün"
+                },
+                question: "كَيْفَ تُسَاعِدُ القِرَاءَةُ الإِنْسَانَ حَسَبَ النَّصِّ؟ (Metne göre okuma insana nasıl yardımcı olur?)",
+                options: ["تُسَاعِدُ فِي النَّوْمِ السَّرِيعِ", "تُوَسِّعُ المَدَارِكَ وَتَزِيدُ المَفْرُودَاتِ", "تَجْعَلُهُ يُسَافِرُ بِالطَّائِرَةِ", "تُعَلِّمُهُ الطَّبْخَ فَقَطْ"],
+                correct: "تُوَسِّعُ المَدَارِكَ وَتَزِيدُ المَفْرُودَاتِ"
+            }
+        ],
+        4: [
+            {
+                title: "التَّكْنُولُوجِيَا وَالحَيَاةُ المُمَاصِرَةُ",
+                text: "أَصْبَحَتِ التَّكْنُولُوجِيَا جُزْءًا لَا يَتَجَزَّأُ مِنْ حَيَاتِنَا اليَوْمِيَّةِ، حَيْثُ تُسَهِّلُ العَمَلِيَّاتِ التَّواصُلِيَّةَ وَتُوَفِّرُ المَعْلُومَاتِ بِسُرْعَةٍ فَائِقَةٍ. بِفَضْلِ شَبَكَةِ الإنْتَرْنِت، بَاتَ بِمَقْدُورِ الطُّلَّابِ التَّعَلُّمُ عَنْ بُعْدٍ وَالْوُصُولُ إِلَى المَكْتَبَاتِ العَالَمِيَّةِ بِلَغْطَةِ زِرٍّ. وَمَعَ ذَلِكَ، يُحَذِّرُ الخُبَرَاءُ مِنْ الإِفْرَاطِ فِي اسْتِخْدَامِ الشَّاشَاتِ الذَّكِيَّةِ، لِمَا لَهُ مِنْ آثَارٍ سَلْبِيَّةٍ عَلَى الصِّحَّةِ الْبَدَنِيَّةِ وَالنَّفْسِيَّةِ. التَّوَازُنُ هُوَ المِفْتَاحُ الأَسَاسِيُّ لِلابْتِكَارِ وَالعَيْشِ السَّلِيمِ.",
+                tr: "Teknoloji, iletişim süreçlerini kolaylaştırması ve bilgiyi son derece hızlı sunması sayesinde günlük hayatımızın ayrılmaz bir parçası haline geldi. İnternet ağı sayesinde öğrenciler uzaktan öğrenebilir ve tek bir tıkla küresel kütüphanelere erişebilirler. Bununla birlikte uzmanlar, fiziksel ve zihinsel sağlık üzerindeki olumsuz etkileri nedeniyle akıllı ekranların aşırı kullanımı konusunda uyarıyorlar. Denge, yenilikçiliğin ve sağlıklı yaşamın temel anahtarıdır.",
+                dictionary: {
+                    "التَّكْنُولُوجِيَا": "teknoloji", "وَالحَيَاةُ": "ve hayat", "المُمَاصِرَةُ": "çağdaş / modern",
+                    "أَصْبَحَتِ": "hale geldi", "جُزْءًا": "bir parça", "لَا": "değil/olmayan",
+                    "يَتَجَزَّأُ": "bölünür", "مِنْ": "den", "حَيَاتِنَا": "hayatımızın", "اليَوْمِيَّةِ،": "günlük",
+                    "حَيْثُ": "ki orada / çünkü", "تُسَهِّلُ": "kolaylaştırır", "العَمَلِيَّاتِ": "süreçleri", "التَّواصُلِيَّةَ": "iletişimsel",
+                    "وَتُوَفِّرُ": "ve sağlar", "المَعْلُومَاتِ": "bilgileri", "بِسُرْعَةٍ": "hızla", "فَائِقَةٍ.": "üstün/aşırı",
+                    "بِفَضْلِ": "sayesinde", "شَبَكَةِ": "ağı", "الإنْتَرْنِت،": "İnternet", "بَاتَ": "oldu",
+                    "بِمَقْدُورِ": "imkan dahilinde", "الطُّلَّابِ": "öğrencilerin", "التَّعَلُّمُ": "öğrenmesi", "عَنْ": "den",
+                    "بُعْدٍ": "uzak", "وَالْوُصُولُ": "ve erişim", "إِلَى": "e/a", "المَكْتَبَاتِ": "kütüphanelere",
+                    "العَالَمِيَّةِ": "dünya/küresel", "بِلَغْطَةِ": "tıklamasıyla", "زِرٍّ.": "bir buton/düğme", "وَمَعَ": "ile birlikte",
+                    "ذَلِكَ،": "bu", "يُحَذِّرُ": "uyarıyor", "الخُبَرَاءُ": "uzمانlar", "الإِفْرَاطِ": "aşırı kullanım",
+                    "فِي": "de/da", "اسْتِخْدَامِ": "kullanımında", "الشَّاشَاتِ": "ekranların",
+                    "الذَّكِيَّةِ،": "akıllı", "لِمَا": "çünkü/nedeniyle", "لَهُ": "onun var", "آثَارٍ": "etkileri",
+                    "سَلْبِيَّةٍ": "olumsuz", "عَلَى": "üzerinde", "الصِّحَّةِ": "sağlık", "الْبَدَنِيَّةِ": "bedensel",
+                    "وَالنَّفْسِيَّةِ.": "ve ruhsal", "التَّوَازُنُ": "denge", "هُوَ": "odur", "المِفْتَاحُ": "anahtar",
+                    "الأَسَاسِيُّ": "temel", "لِلابْتِكَارِ": "yenilikçilik için", "وَالعَيْشِ": "ve yaşam", "السَّلِيمِ.": "sağlıklı/düzgün"
+                },
+                question: "مَا هُوَ تَحْذِيرُ الخُبَرَاءِ فِي النَّصِّ؟ (Metindeki uzmanların uyarısı nedir?)",
+                options: ["عَدَمُ اسْتِخْدَامِ الإنْتَرْنِت أَبَدًا", "الإِفْرَاطُ فِي اسْتِخْدَامِ الشَّاشَاتِ الذَّكِيَّةِ", "إِغْلَاقُ المَكْتَبَاتِ العَالَمِيَّةِ", "التَّعَلُّمُ عَنْ بُعْدٍ دَائِمًا"],
+                correct: "الإِفْرَاطُ فِي اسْتِخْدَامِ الشَّاشَاتِ الذَّكِيَّةِ"
+            }
+        ],
+        5: [
+            {
+                title: "الحِمَايَةُ البِيئِيَّةُ وَالمَسْؤُولِيَّةُ الجَمَاعِيَّةُ",
+                text: "تُوَاجِهُ الكُرَةُ الأَرْضِيَّةُ فِي العَصْرِ الرَّاهِنِ تَحَدِّيَاتٍ بِيئِيَّةً جَسِيمَةً، فِي مُقَدِّمَتِهَا التَّغَيُّرُ المَنَاخِيُّ وَالتَّلَوُّثُ المَائِيُّ وَالهَوَائِيُّ. إِنَّ اسْتِنْزَافَ المَوَارِدِ الطَّبِيعِيَّةِ بِشَكْلٍ غَيْرِ مُدَرُوسٍ يُؤَدِّي إِلَى اخْتِلَالِ التَّوَازُنِ البيئِيِّ وَتَهْدِيدِ التَّنَوُّعِ البَيُولُوجِيِّ. يَتَطَلَّبُ هَذَا الوَضْعُ الطَّارِئُ تَكَاثُفَ الجُهُودِ الدَّوْلِيَّةِ وَتَبَنِّي سِيَاسَاتٍ صَارِمَةٍ لِلْحَدِّ مِنْ الإِنْبِعَاثَاتِ الكَرْبُونِيَّةِ، فَضْلًا عَنْ نَشْرِ الوَعْيِ المَجْتَمَعِيِّ حَوْلَ أَهَمِّيَّةِ إِعَادَةِ التَّدْوِيرِ وَاسْتِخْدَامِ الطَّاقَةِ المُتَجَدِّدَةِ لِضَمَانِ مُسْتَقْبَلٍ مُسْتَدَامٍ لِلأَجْيَالِ القَادِمَةِ.",
+                tr: "Yeryüzü günümüzde, iklim değişikliği, su ve hava kirliliği başta olmak üzere ciddi çevresel zorluklarla karşı karşıyadır. Doğal kaynakların bilinçsizce tüketilmesi ekolojik dengenin bozulmasına ve biyolojik çeşitliliğin tehdit edilmesine yol açmaktadır. Bu acil durum, küresel çabaların birleştirilmesini, karbon emisyonlarını azaltmak için katı politikaların benimsenmesini ve gelecek nesiller için sürdürülebilir bir gelecek sağlamak amacıyla geri dönüşüm ve yenilenebilir enerji kullanımı konusunda toplumsal bilincin yaygınlaştırılmasını gerektirmektedir.",
+                dictionary: {
+                    "الحِمَايَةُ": "koruma", "البِيئِيَّةُ": "çevresel", "وَالمَسْؤُولِيَّةُ": "ve sorumluluk", "الجَمَاعِيَّةُ": "toplu / ortak",
+                    "تُوَاجِهُ": "karşı karşıyadır", "الكُرَةُ": "küre", "الأَرْضِيَّةُ": "yeryüzü/dünya", "فِي": "de/da",
+                    "العَصْرِ": "çağda", "الرَّاهِنِ": "günümüz/mevcut", "تَحَدِّيَاتٍ": "zorluklarla", "بِيئِيَّةً": "çevresel",
+                    "جَسِيمَةً،": "ciddi/büyük", "مُقَدِّمَتِهَا": "önceliğinde", "التَّغَيُّرُ": "değişiklik",
+                    "المَنَاخِيُّ": "iklimsel", "وَالتَّلَوُّثُ": "ve kirlilik", "المَائِيُّ": "su", "وَالهَوَائِيُّ.": "ve hava",
+                    "إِنَّ": "şüphesiz", "اسْتِنْزَافَ": "tüketilmesi", "المَوَارِدِ": "kaynakların", "الطَّبِيعِيَّةِ": "doğal",
+                    "بِشَكْلٍ": "biçimde", "غَيْرِ": "olmayan", "مُدَرُوسٍ": "planlı/bilinçli", "يُؤَدِّي": "yol açar",
+                    "إِلَى": "e/a", "اخْتِلَالِ": "bozulmasına", "التَّوَازُنِ": "dengenin", "البيئِيِّ": "çevresel/ekolojik",
+                    "وَتَهْدِيدِ": "ve tehdit edilmesine", "التَّنَوُّعِ": "çeşitliliğin", "البَيُولُوجِيِّ.": "biyolojik",
+                    "يَتَطَلَّبُ": "gerektirir", "هَذَا": "bu", "الوَضْعُ": "durum", "الطَّارِئُ": "acil",
+                    "تَكَاثُفَ": "birleştirilmesini", "الجُهُودِ": "çabaların", "الدَّوْلِيَّةِ": "uluslararası",
+                    "وَتَبَنِّي": "ve benimsenmesini", "سِيَاسَاتٍ": "politikaların", "صَارِمَةٍ": "katı/sert",
+                    "لِلْحَدِّ": "azaltmak için", "مِنْ": "den", "الإِنْبِعَاثَاتِ": "emisyonları", "الكَرْبُونِيَّةِ،": "karbon",
+                    "فَضْلًا": "ayrıca/yanı sıra", "عَنْ": "den", "نَشْرِ": "yayılması", "الوَعْيِ": "bilincin",
+                    "المَجْتَمَعِيِّ": "toplumsal", "حَوْلَ": "hakkında", "أَهَمِّيَّةِ": "önemi", "إِعَادَةِ": "yeniden",
+                    "التَّدْوِيرِ": "dönüşüm", "وَاسْتِخْدَامِ": "ve kullanımı", "الطَّاقَةِ": "enerjinin", "المُتَجَدِّدَةِ": "yenilenebilir",
+                    "لِضَمَانِ": "garanti etmek için", "مُسْتَقْبَلٍ": "bir gelecek", "مُسْتَدَامٍ": "sürdürülebilir",
+                    "لِلأَجْيَالِ": "nesiller için", "القَادِمَةِ.": "gelecek"
+                },
+                question: "مَا الَّذِي يُؤَدِّي إِلَى اخْتِلَالِ التَّوَازُنِ البيئِيِّ حَسَبَ النَّصِّ؟ (Metne göre ekolojik dengenin bozulmasına ne yol açar?)",
+                options: ["اسْتِخْدَامُ الطَّاقَةِ المُتَجَدِّدَةِ", "اسْتِنْزَافُ المَوَارِدِ الطَّبِيعِيَّةِ بِشَكْلٍ غَيْرِ مُدَرُوسٍ", "إِعَادَةُ التَّدْوِيرِ المُسْتَمِرَّةُ", "نَشْرُ الوَعْيِ المَجْتَمَعِيِّ"],
+                correct: "اسْتِنْزَافُ المَوَارِدِ الطَّبِيعِيَّةِ بِشَكْلٍ غَيْرِ مُدَرُوسٍ"
+            }
+        ],
+        6: [
+            {
+                title: "فَلْسَفَةُ الوعْيِ وَالحَضَارَةِ الإِنْسَانِيَّةِ",
+                text: "إِنَّ التَّطَوُّرَ الحَضَارِيَّ لا يُقَاسُ فَحَسْبُ بِالمُنْجَزَاتِ المَادِيَّةِ وَالتِّقَنِيَّةِ، بَلْ يَرْتَبِطُ ارْتِبَاطًا وُثِيقًا بِالمَفَاهِيمِ الفَلْسَفِيَّةِ وَالأَخْلَاقِيَّةِ الَّتِي تُوَجِّهُ السُّلُوكَ البَشَرِيَّ. فَالْوَعْيُ الإِنْسَانِيُّ المَعْرِفِيُّ يُمَثِّلُ الرَّكِيزَةَ الأَسَاسِيَّةَ لِبِنَاءِ مُجْتَمَعَاتٍ مُتَسَامِحَةٍ تُؤْمِنُ بِالحِوَارِ المَثَقَّفِ وَتَحْتَرِمُ التَّعَدُّدِيَّةَ. عِنْدَمَا تَتَكَاَمَلُ الحِكْمَةُ مَعَ العِلْمِ، يَرْتَقِي الإِنْسَانُ عَنْ المَصَالِحِ الضَّيِّقَةِ لِيَسْعَى نَحْوَ تَحْقِيقِ السَّلَامِ العَالَمِيِّ وَالرَفَاهِيَةِ المُشْتَرَكَةِ، مِمَّا يَضْمَنُ اسْتِمْرَارِيَّةَ العَطَاءِ الحَضَارِيِّ بَعِيدًا عَنْ النَّزَاعَاتِ وَالدَّمَارِ.",
+                tr: "Medeniyetin gelişimi yalnızca maddi ve teknik başarılarla ölçülmez; aksine, insan davranışına yön veren felsefi ve ahlaki kavramlarla yakından ilişkilidir. Bilişsel insan bilinci, entelektüel diyaloğa inanan ve çoğulculuğa saygı duyan hoşgörülü toplumlar inşa etmenin temel direğini temsil eder. Hikmet bilimle bütünleştiğinde, insan dar çıkarların üzerine çıkarak küresel barışı ve ortak refahı başarmaya çabalar; bu da medeniyetin çatışmalardan ve yıkımdan uzak bir şekilde sürekliliğini garanti eder.",
+                dictionary: {
+                    "فَلْسَفَةُ": "felsefesi", "الوعْيِ": "bilincin", "وَالحَضَارَةِ": "ve medeniyetin", "الإِنْسَانِيَّةِ": "insani",
+                    "إِنَّ": "şüphesiz", "التَّطَوُّرَ": "gelişim", "الحَضَارِيَّ": "medeniyet", "لا": "değil/değildir",
+                    "يُقَاسُ": "ölçülür", "فَحَسْبُ": "yalnızca", "بِالمُنْجَزَاتِ": "başarılarla", "المَادِيَّةِ": "maddi",
+                    "وَالتِّقَنِيَّةِ،": "ve teknik", "بَلْ": "aksine", "يَرْتَبِطُ": "ilişkilidir", "ارْتِبَاطًا": "bir bağ ile",
+                    "وُثِيقًا": "sıkı/yakın", "بِالمَفَاهِيمِ": "kavramlarla", "الفَلْسَفِيَّةِ": "felsefi", "وَالأَخْلَاقِيَّةِ": "ve ahlaki",
+                    "الَّتِي": "ki o", "تُوَجِّهُ": "yön verir", "السُّلُوكَ": "davranışa", "البَشَرِيَّ.": "beşeri/insani",
+                    "فَالْوَعْيُ": "bilinç ise", "الإِنْسَانِيُّ": "insani", "المَعْرِفِيُّ": "bilişsel/bilgiye dayalı",
+                    "يُمَثِّلُ": "temsil eder", "الرَّكِيزَةَ": "direği/dayanağı", "الأَسَاسِيَّةَ": "temel", "لِبِنَاءِ": "inşası için",
+                    "مُجْتَمَعَاتٍ": "toplumların", "مُتَسَامِحَةٍ": "hoşgörülü", "تُؤْمِنُ": "inanan", "بِالحِوَارِ": "diyaloğa",
+                    "المَثَقَّفِ": "entelektüel/kültürlü", "وَتَحْتَرِمُ": "ve saygı duyan", "التَّعَدُّدِيَّةَ.": "çoğulculuğa",
+                    "عِنْدَمَا": "zaman/-dığında", "تَتَكَاَمَلُ": "bütünleştiğinde", "الحِكْمَةُ": "hikmet", "مَعَ": "ile",
+                    "العِلْمِ،": "bilim", "يَرْتَقِي": "yükselir", "الإِنْسَانُ": "insan", "عَنْ": "den/üzerine",
+                    "المَصَالِحِ": "çıkar/menfaatlerin", "الضَّيِّقَةِ": "dar", "لِيَسْعَى": "çabalamak için",
+                    "نَحْوَ": "yönünde/doğru", "تَحْقِيقِ": "gerçekleştirilmesi", "السَّلَامِ": "barışın", "العَالَمِيِّ": "evrensel/küresel",
+                    "وَالرَفَاهِيَةِ": "ve refahın", "المُشْتَرَكَةِ،": "ortak", "مِمَّا": "ki bu da", "يَضْمَنُ": "garanti eder",
+                    "اسْتِمْرَارِيَّةَ": "sürekliliğini", "العَطَاءِ": "katkının/verimin", "الحَضَارِيِّ": "medeniyet",
+                    "بَعِيدًا": "uzak", "وَالدَّمَارِ.": "ve yıkımdan"
+                },
+                question: "مَا هُوَ المِقْيَاسُ الحَقِيقِيُّ لِلتَّطَوُّرِ الحَضَارِيِّ حَسَبَ النَّصِّ؟ (Metne göre medeniyet gelişiminin gerçek ölçütü nedir?)",
+                options: ["المُنْجَزَاتُ المَادِيَّةُ فَقَطْ", "المَفَاهِيمُ الفَلْسَفِيَّةُ وَالأَخْلَاقِيَّةُ مَعَ المُنْجَزَاتِ", "الزِّيَادَةُ فِي النَّزَاعَاتِ العَسْكَرِيَّةِ", "التَّنَافُسُ فِي السُّلُوكِ المَادِيِّ"],
+                correct: "المَفَاهِيمُ الفَلْسَفِيَّةُ وَالأَخْلَاقِيَّةُ مَعَ المُنْجَزَاتِ"
+            }
+        ]
+    };
+
+    const gameData = {};
+
+    for (let lvl = 1; lvl <= 6; lvl++) {
+        const pool = wordPool[lvl] || wordPool[1];
+        const stories = storyPool[lvl] || storyPool[1];
+        gameData[lvl] = { matching: [], completion: [], sentence: [], dictation: [], story: [] };
+
+        for (let i = 0; i < 30; i++) {
+            const w1 = pool[i % pool.length];
+            const w2 = pool[(i + 1) % pool.length];
+            const w3 = pool[(i + 2) % pool.length];
+            const w4 = pool[(i + 3) % pool.length];
+
+            let matchType = 'meaning';
+            if (i % 3 === 1 && w1.syn !== '-') matchType = 'synonym';
+            else if (i % 3 === 2 && w1.ant !== '-') matchType = 'antonym';
+
+            let pairs = [];
+            if (matchType === 'meaning') {
+                pairs = [
+                    { left: w1.ar, right: w1.tr },
+                    { left: w2.ar, right: w2.tr },
+                    { left: w3.ar, right: w3.tr },
+                    { left: w4.ar, right: w4.tr }
+                ];
+            } else if (matchType === 'synonym') {
+                pairs = [
+                    { left: w1.ar, right: w1.syn },
+                    { left: w2.ar, right: w2.syn },
+                    { left: w3.ar, right: w3.syn },
+                    { left: w4.ar, right: w4.syn }
+                ];
+            } else if (matchType === 'antonym') {
+                pairs = [
+                    { left: w1.ar, right: w1.ant },
+                    { left: w2.ar, right: w2.ant },
+                    { left: w3.ar, right: w3.ant },
+                    { left: w4.ar, right: w4.ant }
+                ];
+            }
+
+            gameData[lvl].matching.push({ pairs, type: matchType });
+
+            gameData[lvl].completion.push({
+                ar: `هَذَا كِتَابٌ ... ${w1.ar}`,
+                options: [w1.ar, w2.ar, w3.ar],
+                correct: w1.ar,
+                tr: `Bu ${w1.tr} bir kitaptır.`
+            });
+            gameData[lvl].sentence.push({
+                words: ["ذَهَبَ", "الْمُعَلِّمُ", "إِلَى", "الْمَدْرَسَةِ"],
+                correct: ["ذَهَبَ", "الْمُعَلِّمُ", "إِلَى", "الْمَدْرَسَةِ"],
+                tr: "Öğretmen okula gitti."
+            });
+            gameData[lvl].dictation.push({
+                ar: `${w1.ar} جَمِيلٌ`,
+                tr: `${w1.tr} güzeldir.`
+            });
+
+            // Hikaye Modu Verileri
+            const st = stories[i % stories.length];
+            gameData[lvl].story.push(st);
+        }
+    }
+
+    let currentLevel = 1;
+    const maxLevel = 6;
+    let currentQuestionIndex = 0;
+    let currentMode = 'matching';
+    let score = 0;
+    let selectedLeftCard = null;
+    let selectedRightCard = null;
+    let matchedCount = 0;
+    let builtSentence = [];
+    let wrongAttempts = 0;
+
+    window.onload = () => loadQuestion();
+
+    function manualLevelSelect(val) {
+        currentLevel = parseInt(val);
+        currentQuestionIndex = 0;
+        wrongAttempts = 0;
+        updateUI();
+        loadQuestion();
+    }
+
+    function switchMode(mode, evt) {
+        currentMode = mode;
+        document.querySelectorAll('.mode-btn').forEach(btn => btn.classList.remove('active'));
+        if (evt && evt.target) {
+            evt.target.classList.add('active');
+        }
+        currentQuestionIndex = 0;
+        wrongAttempts = 0;
+        loadQuestion();
+    }
+
+    function updateUI() {
+        document.getElementById("levelSelect").value = currentLevel;
+        document.getElementById("levelStatus").innerText = `Aktif: ${currentLevel}. Seviye`;
+        document.getElementById("progressDisplay").innerText = `Alıştırma: ${currentQuestionIndex + 1} / 30`;
+    }
+
+    function loadQuestion() {
+        updateUI();
+        wrongAttempts = 0; 
+        loadQuestionStateOnly();
+    }
+
+    function loadQuestionStateOnly() {
+        const gameArea = document.getElementById("gameArea");
+        const modeQuestions = gameData[currentLevel][currentMode];
+        const q = modeQuestions[currentQuestionIndex];
+        gameArea.innerHTML = "";
+
+        if (currentMode === 'matching') {
+            selectedLeftCard = null;
+            selectedRightCard = null;
+            matchedCount = 0;
+
+            const instruction = document.createElement("div");
+            instruction.className = "match-instruction";
+            if (q.type === 'meaning') instruction.innerText = "Kelime ile Türkçe Anlamını Eşleştirin:";
+            else if (q.type === 'synonym') instruction.innerText = "Eş Anlamlı (المترادفات) Kelimeleri Eşleştirin:";
+            else if (q.type === 'antonym') instruction.innerText = "Zıt Anlamlı (الأضداد) Kelimeleri Eşleştirin:";
+            gameArea.appendChild(instruction);
+
+            const grid = document.createElement("div");
+            grid.className = "match-grid";
+
+            const leftCol = document.createElement("div");
+            leftCol.className = "match-column";
+            const rightCol = document.createElement("div");
+            rightCol.className = "match-column";
+
+            const leftItems = [...q.pairs].sort(() => Math.random() - 0.5);
+            const rightItems = [...q.pairs].sort(() => Math.random() - 0.5);
+
+            leftItems.forEach(item => {
+                const card = document.createElement("div");
+                card.className = "match-card";
+                card.innerText = item.left;
+                card.onclick = () => selectMatchCard(card, 'left', item);
+                leftCol.appendChild(card);
+            });
+
+            rightItems.forEach(item => {
+                const card = document.createElement("div");
+                card.className = q.type === 'meaning' ? "match-card turkish" : "match-card";
+                card.innerText = item.right;
+                card.onclick = () => selectMatchCard(card, 'right', item);
+                rightCol.appendChild(card);
+            });
+
+            grid.appendChild(leftCol);
+            grid.appendChild(rightCol);
+            gameArea.appendChild(grid);
+        }
+        else if (currentMode === 'completion') {
+            createAudioControls(gameArea, q.ar);
+            renderArabicText(gameArea, q.ar);
+            renderSubText(gameArea, q.tr);
+            renderOptions(gameArea, q.options, q.correct);
+        }
+        else if (currentMode === 'sentence') {
+            builtSentence = [];
+            renderSubText(gameArea, `Hedef Cümle: ${q.tr}`);
+
+            const box = document.createElement("div");
+            box.className = "sentence-box";
+            gameArea.appendChild(box);
+
+            const wordsDiv = document.createElement("div");
+            wordsDiv.className = "words-container";
+
+            const shuffledWords = [...q.words].sort(() => Math.random() - 0.5);
+            shuffledWords.forEach(word => {
+                const btn = document.createElement("button");
+                btn.className = "word-btn";
+                btn.innerText = word;
+                btn.onclick = () => {
+                    builtSentence.push(word);
+                    box.innerText = builtSentence.join(" ");
+                    btn.disabled = true;
+                    if (builtSentence.length === q.correct.length) {
+                        if (JSON.stringify(builtSentence) === JSON.stringify(q.correct)) {
+                            checkAnswer(true);
+                        } else {
+                            handleWrongAttempt(q.correct.join(" "));
+                        }
+                    }
+                };
+                wordsDiv.appendChild(btn);
+            });
+            gameArea.appendChild(wordsDiv);
+        }
+        else if (currentMode === 'dictation') {
+            createAudioControls(gameArea, q.ar);
+            renderSubText(gameArea, "Dinlediğiniz cümleyi yazın:");
+
+            const input = document.createElement("input");
+            input.type = "text";
+            input.className = "dictation-input";
+            gameArea.appendChild(input);
+
+            renderVirtualKeyboard(gameArea, input);
+
+            const submitBtn = document.createElement("button");
+            submitBtn.className = "action-btn";
+            submitBtn.style.marginTop = "15px";
+            submitBtn.innerText = "Kontrol Et";
+            submitBtn.onclick = () => {
+                if (input.value.trim() === q.ar) {
+                    checkAnswer(true);
+                } else {
+                    handleWrongAttempt(q.ar);
+                }
+            };
+            gameArea.appendChild(submitBtn);
+        }
+        else if (currentMode === 'story') {
+            createAudioControls(gameArea, q.text);
+
+            const hint = document.createElement("div");
+            hint.className = "story-hint-text";
+            hint.innerText = "💡 İpucu: Kelimelerin Türkçe anlamını görmek için üzerlerine tıklayın.";
+            gameArea.appendChild(hint);
+
+            const storyBox = document.createElement("div");
+            storyBox.className = "story-container";
+
+            // Başlığın Tıklanabilir Kelimeler Haline Getirilmesi
+            const titleDiv = document.createElement("div");
+            titleDiv.className = "story-title";
+            renderClickableText(titleDiv, q.title, q.dictionary);
+            storyBox.appendChild(titleDiv);
+
+            // Metnin Tıklanabilir Kelimeler Haline Getirilmesi
+            const textDiv = document.createElement("div");
+            textDiv.className = "arabic-text";
+            renderClickableText(textDiv, q.text, q.dictionary);
+            storyBox.appendChild(textDiv);
+
+            // Boş bir yere tıklandığında açık popupları kapatma
+            document.addEventListener('click', () => {
+                document.querySelectorAll(".clickable-word").forEach(w => w.classList.remove("active-word"));
+            });
+
+            const trans = document.createElement("div");
+            trans.className = "story-translation";
+            trans.innerText = `Türkçe Tam Çeviri: ${q.tr}`;
+            storyBox.appendChild(trans);
+
+            gameArea.appendChild(storyBox);
+
+            const qBox = document.createElement("div");
+            qBox.className = "question-box";
+
+            const qTitle = document.createElement("div");
+            qTitle.className = "question-title";
+            qTitle.innerText = q.question;
+            qBox.appendChild(qTitle);
+
+            renderOptions(qBox, q.options, q.correct);
+            gameArea.appendChild(qBox);
+        }
+    }
+
+    // Metni/Başlığı kelimelerine ayırıp her kelimeyi tıklanabilir yapan yardımcı fonksiyon
+    function renderClickableText(container, rawText, dictionary) {
+        const words = rawText.split(" ");
+        words.forEach(rawWord => {
+            const cleanWord = rawWord.replace(/[.,،؟!?]/g, "");
+            const meaning = (dictionary && dictionary[cleanWord]) 
+                ? dictionary[cleanWord] 
+                : ((dictionary && dictionary[rawWord]) ? dictionary[rawWord] : "Anlamı mevcut değil");
+
+            const wordSpan = document.createElement("span");
+            wordSpan.className = "clickable-word";
+            wordSpan.innerText = rawWord + " ";
+
+            const popup = document.createElement("span");
+            popup.className = "word-popup";
+            popup.innerText = meaning;
+            wordSpan.appendChild(popup);
+
+            wordSpan.onclick = (e) => {
+                e.stopPropagation();
+                const isActive = wordSpan.classList.contains("active-word");
+                document.querySelectorAll(".clickable-word").forEach(w => w.classList.remove("active-word"));
+                if (!isActive) {
+                    wordSpan.classList.add("active-word");
+                }
+            };
+
+            container.appendChild(wordSpan);
+        });
+    }
+
+    function handleWrongAttempt(correctAnswer) {
+        wrongAttempts++;
+        if (wrongAttempts >= 3) {
+            alert(`3 defa hatalı deneme yaptınız!\n\nDoğru Cevap: ${correctAnswer}`);
+            nextQuestion();
+        } else {
+            alert(`Hatalı cevap! Kalan hakkınız: ${3 - wrongAttempts}`);
+            if (currentMode === 'sentence' || currentMode === 'completion' || currentMode === 'story') {
+                loadQuestionStateOnly();
+            }
+        }
+    }
+
+    function createAudioControls(parent, text) {
+        const container = document.createElement("div");
+        container.className = "audio-controls";
+
+        const normalBtn = document.createElement("button");
+        normalBtn.className = "audio-btn";
+        normalBtn.innerText = "🔊 Normal Oku";
+        normalBtn.onclick = () => speakArabic(text, 1.0);
+
+        const slowBtn = document.createElement("button");
+        slowBtn.className = "audio-btn slow";
+        slowBtn.innerText = "🐢 Yavaş Oku";
+        slowBtn.onclick = () => speakArabic(text, 0.5);
+
+        container.appendChild(normalBtn);
+        container.appendChild(slowBtn);
+        parent.appendChild(container);
+    }
+
+    function speakArabic(text, rate = 1.0) {
+        if ('speechSynthesis' in window) {
+            window.speechSynthesis.cancel();
+            const utterance = new SpeechSynthesisUtterance(text);
+            utterance.lang = 'ar-SA';
+            utterance.rate = rate;
+            window.speechSynthesis.speak(utterance);
+        } else {
+            alert("Tarayıcınız sesli okumayı desteklemiyor.");
+        }
+    }
+
+    function renderVirtualKeyboard(parent, inputTarget) {
+        const keyboardContainer = document.createElement("div");
+        keyboardContainer.className = "virtual-keyboard";
+
+        arabicKeyboardLayout.forEach(row => {
+            const rowDiv = document.createElement("div");
+            rowDiv.className = "keyboard-row";
+
+            row.forEach(char => {
+                const btn = document.createElement("button");
+                btn.className = "key-btn";
+                btn.innerText = char;
+                btn.onclick = () => {
+                    inputTarget.value += char;
+                    inputTarget.focus();
+                };
+                rowDiv.appendChild(btn);
+            });
+
+            keyboardContainer.appendChild(rowDiv);
+        });
+
+        const controlRow = document.createElement("div");
+        controlRow.className = "keyboard-row";
+
+        const backspaceBtn = document.createElement("button");
+        backspaceBtn.className = "key-btn wide";
+        backspaceBtn.innerText = "Sil ⌫";
+        backspaceBtn.onclick = () => {
+            inputTarget.value = inputTarget.value.slice(0, -1);
+            inputTarget.focus();
+        };
+
+        const spaceBtn = document.createElement("button");
+        spaceBtn.className = "key-btn wide";
+        spaceBtn.style.flex = "1";
+        spaceBtn.innerText = "Boşluk";
+        spaceBtn.onclick = () => {
+            inputTarget.value += " ";
+            inputTarget.focus();
+        };
+
+        controlRow.appendChild(backspaceBtn);
+        controlRow.appendChild(spaceBtn);
+        keyboardContainer.appendChild(controlRow);
+
+        parent.appendChild(keyboardContainer);
+    }
+
+    function selectMatchCard(card, side, item) {
+        if (card.classList.contains('matched')) return;
+
+        if (side === 'left') {
+            if (selectedLeftCard) selectedLeftCard.card.classList.remove('selected');
+            selectedLeftCard = { card, item };
+            card.classList.add('selected');
+        } else {
+            if (selectedRightCard) selectedRightCard.card.classList.remove('selected');
+            selectedRightCard = { card, item };
+            card.classList.add('selected');
+        }
+
+        if (selectedLeftCard && selectedRightCard) {
+            if (selectedLeftCard.item.left === selectedRightCard.item.left) {
+                selectedLeftCard.card.classList.add('matched');
+                selectedRightCard.card.classList.add('matched');
+                selectedLeftCard = null;
+                selectedRightCard = null;
+                matchedCount++;
+
+                if (matchedCount === 4) {
+                    checkAnswer(true);
+                }
+            } else {
+                setTimeout(() => {
+                    if (selectedLeftCard) selectedLeftCard.card.classList.remove('selected');
+                    if (selectedRightCard) selectedRightCard.card.classList.remove('selected');
+                    selectedLeftCard = null;
+                    selectedRightCard = null;
+                }, 500);
+            }
+        }
+    }
+
+    function renderArabicText(parent, text) {
+        const div = document.createElement("div");
+        div.className = "arabic-text";
+        div.innerText = text;
+        parent.appendChild(div);
+    }
+
+    function renderSubText(parent, text) {
+        const p = document.createElement("p");
+        p.innerText = text;
+        parent.appendChild(p);
+    }
+
+    function renderOptions(parent, options, correct) {
+        const grid = document.createElement("div");
+        grid.className = "options-grid";
+        options.forEach(opt => {
+            const btn = document.createElement("button");
+            btn.className = "option-btn";
+            btn.innerText = opt;
+            btn.onclick = () => {
+                if (opt === correct) {
+                    checkAnswer(true);
+                } else {
+                    handleWrongAttempt(correct);
+                }
+            };
+            grid.appendChild(btn);
+        });
+        parent.appendChild(grid);
+    }
+
+    function checkAnswer(isCorrect) {
+        if (isCorrect) {
+            score += 10;
+            document.getElementById("scoreDisplay").innerText = `Puan: ${score}`;
+            alert("Tebrikler!");
+            nextQuestion();
+        }
+    }
+
+    function nextQuestion() {
+        currentQuestionIndex++;
+        if (currentQuestionIndex >= 30) {
+            onLevelComplete();
+        } else {
+            loadQuestion();
+        }
+    }
+
+    function onLevelComplete() {
+        if (currentLevel < maxLevel) {
+            alert(`Tebrikler! ${currentLevel}. seviyedeki 30 alıştırmayı tamamladınız. ${currentLevel + 1}. seviyeye geçiliyor!`);
+            currentLevel++;
+            currentQuestionIndex = 0;
+            loadQuestion();
+        } else {
+            alert("Tüm seviyeleri tamamladınız!");
+        }
+    }
+</script>
+
+</body>
+</html>
