@@ -1,0 +1,2137 @@
+
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>İnteraktif Arapça Öğrenme Platformu</title>
+
+<style>
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family:Arial,sans-serif;
+}
+
+body{
+    background:#f4f7fb;
+    color:#172033;
+}
+
+header{
+    background:linear-gradient(135deg,#1d4ed8,#2563eb);
+    color:white;
+    padding:28px 20px;
+    text-align:center;
+}
+
+header h1{
+    font-size:30px;
+    margin-bottom:8px;
+}
+
+header p{
+    opacity:.9;
+}
+
+.container{
+    width:94%;
+    max-width:1250px;
+    margin:25px auto;
+}
+
+.levels{
+    display:grid;
+    grid-template-columns:repeat(6,1fr);
+    gap:10px;
+    margin-bottom:20px;
+}
+
+.level-btn{
+    border:0;
+    padding:15px 8px;
+    border-radius:12px;
+    background:white;
+    cursor:pointer;
+    font-weight:bold;
+    box-shadow:0 3px 12px rgba(0,0,0,.08);
+}
+
+.level-btn.active{
+    background:#2563eb;
+    color:white;
+}
+
+.modes{
+    display:flex;
+    flex-wrap:wrap;
+    gap:10px;
+    margin-bottom:20px;
+}
+
+.mode-btn{
+    border:0;
+    padding:12px 18px;
+    border-radius:10px;
+    background:white;
+    cursor:pointer;
+    font-weight:bold;
+    box-shadow:0 2px 8px rgba(0,0,0,.08);
+}
+
+.mode-btn.active{
+    background:#111827;
+    color:white;
+}
+
+.game-card{
+    background:white;
+    border-radius:18px;
+    padding:30px;
+    box-shadow:0 5px 25px rgba(0,0,0,.08);
+    min-height:500px;
+}
+
+.question-top{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:25px;
+}
+
+.badge{
+    background:#dbeafe;
+    color:#1d4ed8;
+    padding:8px 14px;
+    border-radius:20px;
+    font-weight:bold;
+}
+
+.progress-text{
+    font-weight:bold;
+}
+
+.question-title{
+    text-align:center;
+    font-size:23px;
+    margin-bottom:25px;
+}
+
+.arabic{
+    direction:rtl;
+    text-align:right;
+    font-size:28px;
+    line-height:2;
+}
+
+.subtext{
+    color:#64748b;
+    font-size:16px;
+    margin-top:8px;
+}
+
+.match-grid{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:30px;
+    max-width:900px;
+    margin:auto;
+}
+
+.match-column{
+    display:flex;
+    flex-direction:column;
+    gap:12px;
+}
+
+.match-card{
+    padding:18px;
+    border:2px solid #e5e7eb;
+    border-radius:12px;
+    background:white;
+    cursor:pointer;
+    font-size:20px;
+    transition:.2s;
+}
+
+.match-card:hover{
+    border-color:#2563eb;
+    background:#eff6ff;
+}
+
+.match-card.selected{
+    background:#dbeafe;
+    border-color:#2563eb;
+}
+
+.match-card.correct{
+    background:#dcfce7;
+    border-color:#16a34a;
+}
+
+.match-card.wrong{
+    background:#fee2e2;
+    border-color:#dc2626;
+}
+
+.option-grid{
+    display:grid;
+    grid-template-columns:repeat(2,1fr);
+    gap:15px;
+    max-width:850px;
+    margin:auto;
+}
+
+.option{
+    border:2px solid #e5e7eb;
+    background:white;
+    padding:18px;
+    border-radius:12px;
+    cursor:pointer;
+    font-size:18px;
+}
+
+.option:hover{
+    border-color:#2563eb;
+}
+
+.option.correct{
+    background:#dcfce7;
+    border-color:#16a34a;
+}
+
+.option.wrong{
+    background:#fee2e2;
+    border-color:#dc2626;
+}
+
+.answer-box{
+    max-width:850px;
+    margin:auto;
+}
+
+.answer-box input,
+.answer-box textarea,
+.story-work textarea{
+    width:100%;
+    padding:15px;
+    border:2px solid #e5e7eb;
+    border-radius:12px;
+    font-size:18px;
+    outline:none;
+}
+
+.answer-box textarea,
+.story-work textarea{
+    resize:vertical;
+    min-height:130px;
+}
+
+.answer-box input:focus,
+.answer-box textarea:focus,
+.story-work textarea:focus{
+    border-color:#2563eb;
+}
+
+.primary-btn{
+    border:0;
+    background:#2563eb;
+    color:white;
+    padding:13px 22px;
+    border-radius:10px;
+    cursor:pointer;
+    font-weight:bold;
+    margin-top:12px;
+}
+
+.secondary-btn{
+    border:0;
+    background:#e5e7eb;
+    color:#111827;
+    padding:11px 18px;
+    border-radius:10px;
+    cursor:pointer;
+    font-weight:bold;
+    margin-top:10px;
+}
+
+.story-box{
+    max-width:1050px;
+    margin:auto;
+}
+
+/* YENİ: TIKLANABİLİR HİKÂYE BAŞLIĞI */
+
+.story-title{
+    font-size:34px;
+    text-align:center;
+    margin-bottom:25px;
+    direction:rtl;
+    line-height:2;
+}
+
+.story-title .story-word{
+    cursor:pointer;
+    border-bottom:3px dotted #2563eb;
+    transition:.2s;
+}
+
+.story-title .story-word:hover{
+    background:#dbeafe;
+    border-radius:6px;
+}
+
+/* UZUN HİKÂYE */
+
+.story-text{
+    background:#f8fafc;
+    border-right:6px solid #2563eb;
+    padding:30px;
+    border-radius:14px;
+    font-size:23px;
+    line-height:2.25;
+    direction:rtl;
+    text-align:right;
+    max-height:none;
+}
+
+.story-word{
+    cursor:pointer;
+    border-bottom:2px dotted #2563eb;
+    transition:.15s;
+}
+
+.story-word:hover{
+    background:#dbeafe;
+    border-radius:5px;
+}
+
+.story-translation{
+    margin-top:18px;
+    background:#f8fafc;
+    padding:22px;
+    border-radius:12px;
+    line-height:2;
+    font-size:17px;
+}
+
+.story-work{
+    margin-top:30px;
+    display:grid;
+    grid-template-columns:repeat(2,1fr);
+    gap:20px;
+}
+
+.work-card{
+    background:#f8fafc;
+    border:1px solid #e2e8f0;
+    padding:22px;
+    border-radius:15px;
+}
+
+.work-card.full{
+    grid-column:1/-1;
+}
+
+.work-card h3{
+    margin-bottom:10px;
+}
+
+.story-tip{
+    background:#eff6ff;
+    border:1px solid #bfdbfe;
+    padding:16px;
+    border-radius:12px;
+    margin-top:20px;
+    line-height:1.7;
+}
+
+.word-info{
+    display:none;
+    position:fixed;
+    left:50%;
+    top:50%;
+    transform:translate(-50%,-50%);
+    width:360px;
+    max-width:90%;
+    background:white;
+    padding:30px;
+    border-radius:18px;
+    box-shadow:0 15px 50px rgba(0,0,0,.25);
+    z-index:100;
+    text-align:center;
+}
+
+.word-info.show{
+    display:block;
+}
+
+.word-info h2{
+    direction:rtl;
+    font-size:32px;
+    margin-bottom:15px;
+}
+
+.word-info p{
+    font-size:21px;
+    color:#334155;
+}
+
+.overlay{
+    display:none;
+    position:fixed;
+    inset:0;
+    background:rgba(0,0,0,.4);
+    z-index:90;
+}
+
+.overlay.show{
+    display:block;
+}
+
+.keyboard{
+    display:grid;
+    grid-template-columns:repeat(10,1fr);
+    gap:5px;
+    margin-top:15px;
+}
+
+.key{
+    padding:9px 3px;
+    border:0;
+    border-radius:7px;
+    background:#e2e8f0;
+    cursor:pointer;
+    font-size:16px;
+}
+
+.feedback{
+    margin-top:20px;
+    text-align:center;
+    font-size:18px;
+    font-weight:bold;
+    min-height:25px;
+}
+
+.footer-bar{
+    margin-top:20px;
+    background:white;
+    padding:18px;
+    border-radius:15px;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    box-shadow:0 3px 12px rgba(0,0,0,.06);
+}
+
+.score{
+    font-size:20px;
+    font-weight:bold;
+}
+
+.next-btn{
+    border:0;
+    background:#16a34a;
+    color:white;
+    padding:13px 25px;
+    border-radius:10px;
+    cursor:pointer;
+    font-weight:bold;
+}
+
+@media(max-width:800px){
+
+    .levels{
+        grid-template-columns:repeat(3,1fr);
+    }
+
+    .match-grid,
+    .story-work{
+        grid-template-columns:1fr;
+    }
+
+    .option-grid{
+        grid-template-columns:1fr;
+    }
+
+    .game-card{
+        padding:18px;
+    }
+
+    .story-text{
+        font-size:20px;
+        padding:20px;
+    }
+
+    .story-title{
+        font-size:27px;
+    }
+}
+
+
+/* ===== PROFESYONEL OYUN ARAYÜZÜ ===== */
+:root{
+  --indigo:#4f46e5;--violet:#7c3aed;--pink:#ec4899;--cyan:#06b6d4;
+  --green:#10b981;--amber:#f59e0b;--ink:#172033;--muted:#64748b;
+}
+body{
+  min-height:100vh;
+  background:
+    radial-gradient(circle at 8% 10%,rgba(251,191,36,.28),transparent 24%),
+    radial-gradient(circle at 92% 14%,rgba(236,72,153,.22),transparent 26%),
+    radial-gradient(circle at 80% 88%,rgba(6,182,212,.20),transparent 28%),
+    linear-gradient(135deg,#eef2ff 0%,#fdf2f8 47%,#ecfeff 100%);
+  background-attachment:fixed;
+}
+body::before,body::after{
+  position:fixed;z-index:-1;opacity:.10;font-size:120px;pointer-events:none;
+  animation:floatGame 7s ease-in-out infinite;
+}
+body::before{content:"✦";left:3%;top:34%;color:var(--violet)}
+body::after{content:"★";right:4%;bottom:12%;color:var(--pink);animation-delay:1.5s}
+@keyframes floatGame{50%{transform:translateY(-22px) rotate(10deg) scale(1.08)}}
+header{
+  background:linear-gradient(135deg,#4338ca 0%,#7c3aed 52%,#ec4899 100%);
+  box-shadow:0 12px 35px rgba(79,70,229,.25);position:relative;overflow:hidden;
+}
+header::after{content:"🎮  ⭐  🧩  🚀  📚";position:absolute;inset:auto 0 6px;font-size:20px;letter-spacing:18px;opacity:.16}
+.container{margin-top:28px}
+.game-hud{display:grid;grid-template-columns:1.2fr 1fr 1fr;gap:12px;margin-bottom:18px}
+.hud-item{background:rgba(255,255,255,.9);border:1px solid rgba(224,231,255,.95);border-radius:16px;padding:14px 16px;box-shadow:0 8px 22px rgba(79,70,229,.10);backdrop-filter:blur(8px)}
+.hud-label{font-size:12px;color:var(--muted);font-weight:800;text-transform:uppercase;letter-spacing:.4px}
+.hud-value{font-size:21px;font-weight:900;margin-top:4px}.xp-track{height:9px;background:#e5e7eb;border-radius:99px;overflow:hidden;margin-top:8px}.xp-fill{height:100%;width:0;background:linear-gradient(90deg,var(--amber),var(--pink),var(--violet));transition:width .35s}
+.level-btn,.mode-btn{transition:.18s transform,.18s box-shadow,.18s background}.level-btn:hover,.mode-btn:hover{transform:translateY(-3px);box-shadow:0 9px 22px rgba(79,70,229,.16)}
+.level-btn.active{background:linear-gradient(135deg,var(--indigo),var(--violet));color:white}.mode-btn.active{background:linear-gradient(135deg,#111827,var(--indigo));color:white}
+.game-card{background:rgba(255,255,255,.94);border:1px solid rgba(255,255,255,.9);box-shadow:0 20px 55px rgba(79,70,229,.14);backdrop-filter:blur(10px)}
+.question-title{font-weight:900}.badge{background:linear-gradient(135deg,#ede9fe,#fce7f3);color:#5b21b6;border:1px solid #ddd6fe}
+.primary-btn,.next-btn{background:linear-gradient(135deg,var(--indigo),var(--violet));box-shadow:0 6px 16px rgba(79,70,229,.22);transition:.15s}.primary-btn:hover,.next-btn:hover{transform:translateY(-2px)}.next-btn{background:linear-gradient(135deg,#10b981,#059669)}
+.mode-panel{max-width:900px;margin:auto}.hero-word{margin:18px auto;padding:24px;border-radius:20px;background:linear-gradient(135deg,#eef2ff,#fdf2f8);border:1px solid #ddd6fe;text-align:center}.hero-word .arabic{font-size:46px;text-align:center;font-weight:900}
+.puzzle-letters{display:flex;flex-wrap:wrap;justify-content:center;gap:10px;margin:22px auto;max-width:800px}.letter-tile{min-width:54px;padding:13px 11px;border:2px solid #c7d2fe;border-radius:14px;background:linear-gradient(180deg,#fff,#eef2ff);font-size:25px;font-weight:900;cursor:pointer;box-shadow:0 5px 13px rgba(79,70,229,.10);transition:.15s}.letter-tile:hover{transform:translateY(-4px) rotate(-2deg);border-color:var(--violet)}.letter-tile.used{opacity:.34;cursor:default;transform:scale(.94)}
+.hint-box{margin:18px auto;max-width:760px;padding:18px;border-radius:16px;background:linear-gradient(135deg,#fff7ed,#fef3c7);border:1px solid #fcd34d;text-align:center;font-size:18px}.answer-display{min-height:78px;border:2px dashed #c7d2fe;border-radius:15px;padding:18px;text-align:center;font-size:34px;direction:rtl;background:#fafafa}
+.dictation-speaker{width:110px;height:110px;border-radius:50%;border:0;cursor:pointer;font-size:46px;background:linear-gradient(135deg,#dbeafe,#ede9fe);box-shadow:0 10px 28px rgba(79,70,229,.18)}
+.footer-bar{border:1px solid rgba(255,255,255,.85);box-shadow:0 10px 28px rgba(79,70,229,.12)}
+@media(max-width:800px){.game-hud{grid-template-columns:1fr}.hero-word .arabic{font-size:38px}.letter-tile{min-width:44px}.mode-btn{flex:1 1 45%}}
+
+</style>
+</head>
+
+<body>
+
+<header>
+    <h1>📚 İnteraktif Arapça Öğrenme Platformu</h1>
+    <p>Kelime öğren • Cümle kur • Dinle • Yaz • Hikâye oku • Kendi hikâyeni oluştur</p>
+</header>
+
+<div class="container">
+
+
+    <div class="game-hud">
+        <div class="hud-item"><div class="hud-label">🏆 Toplam XP</div><div class="hud-value" id="xpValue">0 XP</div><div class="xp-track"><div class="xp-fill" id="xpFill"></div></div></div>
+        <div class="hud-item"><div class="hud-label">🔥 Doğru Seri</div><div class="hud-value">🔥 <span id="streakValue">0</span></div></div>
+        <div class="hud-item"><div class="hud-label">🎖️ Rütbe</div><div class="hud-value" id="rankValue">Yeni Başlangıç</div></div>
+    </div>
+
+    <div class="levels">
+        <button class="level-btn active" onclick="manualLevelSelect(1)">A1<br><small>Başlangıç</small></button>
+        <button class="level-btn" onclick="manualLevelSelect(2)">A2<br><small>Temel</small></button>
+        <button class="level-btn" onclick="manualLevelSelect(3)">B1<br><small>Orta</small></button>
+        <button class="level-btn" onclick="manualLevelSelect(4)">B2<br><small>Orta Üstü</small></button>
+        <button class="level-btn" onclick="manualLevelSelect(5)">C1<br><small>İleri</small></button>
+        <button class="level-btn" onclick="manualLevelSelect(6)">C2<br><small>Ustalık</small></button>
+    </div>
+
+    <div class="modes">
+        <button class="mode-btn active" onclick="switchMode('matching',this)">🔗 Eşleştirme</button>
+        <button class="mode-btn" onclick="switchMode('puzzle',this)">🧩 Kelime Bulmaca</button>
+        <button class="mode-btn" onclick="switchMode('completion',this)">✏️ Boşluk Doldurma</button>
+        <button class="mode-btn" onclick="switchMode('sentence',this)">🧱 Cümle Yapbozu</button>
+        <button class="mode-btn" onclick="switchMode('dictation',this)">🎧 Dikte</button>
+        <button class="mode-btn" onclick="switchMode('letters',this)">🔤 Harfleri Diz</button>
+        <button class="mode-btn" onclick="switchMode('hint',this)">🧠 İpucundan Bul</button>
+        <button class="mode-btn" onclick="switchMode('story',this)">📖 Hikâye</button>
+    </div>
+
+    <div class="game-card">
+
+        <div class="question-top">
+            <span class="badge" id="levelBadge">A1</span>
+            <span class="progress-text" id="progressText">1 / 10</span>
+        </div>
+
+        <div id="gameArea"></div>
+
+        <div class="feedback" id="feedback"></div>
+
+    </div>
+
+    <div class="footer-bar">
+        <div class="score">
+            ⭐ Puan: <span id="score">0</span>
+        </div>
+
+        <button class="next-btn" onclick="nextQuestion()">
+            Sonraki ➜
+        </button>
+    </div>
+
+</div>
+
+<div class="overlay" id="overlay" onclick="closeWordInfo()"></div>
+
+<div class="word-info" id="wordInfo">
+
+    <h2 id="infoArabic"></h2>
+
+    <p id="infoTurkish"></p>
+
+    <button class="primary-btn" onclick="closeWordInfo()">
+        Kapat
+    </button>
+
+</div>
+
+
+<script>
+
+/* =========================================================
+   SEVİYELER
+========================================================= */
+
+const levelNames = {
+    1:"A1",
+    2:"A2",
+    3:"B1",
+    4:"B2",
+    5:"C1",
+    6:"C2"
+};
+
+
+/* =========================================================
+   KELİME HAVUZU
+========================================================= */
+
+const wordPool = {
+
+1:[
+["كِتَابٌ","kitap"],["قَلَمٌ","kalem"],["بَيْتٌ","ev"],["مَدْرَسَةٌ","okul"],
+["طَالِبٌ","öğrenci"],["مُعَلِّمٌ","öğretmen"],["بَابٌ","kapı"],["كُرْسِيٌّ","sandalye"],
+["مَاءٌ","su"],["طَعَامٌ","yemek"],["شَمْسٌ","güneş"],["قَمَرٌ","ay"],
+["يَوْمٌ","gün"],["لَيْلٌ","gece"],["صَبَاحٌ","sabah"],["مَسَاءٌ","akşam"],
+["أَبٌ","baba"],["أُمٌّ","anne"],["أَخٌ","erkek kardeş"],["أُخْتٌ","kız kardeş"],
+["صَدِيقٌ","arkadaş"],["مَدِينَةٌ","şehir"],["قَرْيَةٌ","köy"],["سَيَّارَةٌ","araba"],
+["طَرِيقٌ","yol"],["سُوقٌ","pazar"],["مَطْعَمٌ","restoran"],["مَكْتَبٌ","ofis"],
+["هَاتِفٌ","telefon"],["حَقِيبَةٌ","çanta"],["ثَوْبٌ","elbise"],["حِذَاءٌ","ayakkabı"],
+["رَأْسٌ","baş"],["يَدٌ","el"],["عَيْنٌ","göz"],["أُذُنٌ","kulak"],
+["أَكَلَ","yedi"],["شَرِبَ","içti"],["ذَهَبَ","gitti"],["جَاءَ","geldi"]
+],
+
+2:[
+["عَمَلٌ","iş"],["وَظِيفَةٌ","meslek"],["مُدِيرٌ","yönetici"],["شَرِكَةٌ","şirket"],
+["اجْتِمَاعٌ","toplantı"],["مَشْرُوعٌ","proje"],["مَكْتَبَةٌ","kütüphane"],["جَامِعَةٌ","üniversite"],
+["مُسْتَشْفًى","hastane"],["طَبِيبٌ","doktor"],["مَرِيضٌ","hasta"],["دَوَاءٌ","ilaç"],
+["رِحْلَةٌ","gezi"],["سَفَرٌ","seyahat"],["مَطَارٌ","havaalanı"],["فُنْدُقٌ","otel"],
+["تَذْكِرَةٌ","bilet"],["حَافِلَةٌ","otobüs"],["قِطَارٌ","tren"],["مَحَطَّةٌ","istasyon"],
+["شَارِعٌ","cadde"],["جِسْرٌ","köprü"],["حَدِيقَةٌ","park"],["بَحْرٌ","deniz"],
+["جَبَلٌ","dağ"],["نَهْرٌ","nehir"],["شَجَرَةٌ","ağaç"],["زَهْرَةٌ","çiçek"],
+["طَقْسٌ","hava durumu"],["مَطَرٌ","yağmur"],["رِيحٌ","rüzgâr"],["سَمَاءٌ","gökyüzü"],
+["حَارٌ","sıcak"],["بَارِدٌ","soğuk"],["جَمِيلٌ","güzel"],["سَرِيعٌ","hızlı"],
+["بَطِيءٌ","yavaş"],["قَرِيبٌ","yakın"],["بَعِيدٌ","uzak"],["سَهْلٌ","kolay"]
+],
+
+3:[
+["تَجْرِبَةٌ","deneyim"],["مَهَارَةٌ","beceri"],["مَعْرِفَةٌ","bilgi"],["نَجَاحٌ","başarı"],
+["فَشَلٌ","başarısızlık"],["هَدَفٌ","hedef"],["خُطَّةٌ","plan"],["قَرَارٌ","karar"],
+["فُرْصَةٌ","fırsat"],["مُشْكِلَةٌ","problem"],["حَلٌّ","çözüm"],["نَتِيجَةٌ","sonuç"],
+["سَبَبٌ","sebep"],["تَأْثِيرٌ","etki"],["مُسَاعَدَةٌ","yardım"],["مَسْؤُولِيَّةٌ","sorumluluk"],
+["ثِقَةٌ","güven"],["احْتِرَامٌ","saygı"],["حُرِّيَّةٌ","özgürlük"],["عَدْلٌ","adalet"],
+["مُجْتَمَعٌ","toplum"],["ثَقَافَةٌ","kültür"],["تَارِيخٌ","tarih"],["مُسْتَقْبَلٌ","gelecek"],
+["تَطَوُّرٌ","gelişim"],["تَغْيِيرٌ","değişim"],["تَحَدٍّ","meydan okuma"],["قُدْرَةٌ","yetenek"],
+["إِرَادَةٌ","irade"],["ذِكْرَى","anı"],["شَخْصِيَّةٌ","kişilik"],["سُلُوكٌ","davranış"],
+["فِكْرَةٌ","fikir"],["رَأْيٌ","görüş"],["سُؤَالٌ","soru"],["إِجَابَةٌ","cevap"],
+["نِقَاشٌ","tartışma"],["حِوَارٌ","diyalog"],["مَوْضُوعٌ","konu"],["مَقَالٌ","makale"]
+],
+
+4:[
+["اقْتِصَادٌ","ekonomi"],["سِيَاسَةٌ","siyaset"],["تَارِيخِيٌّ","tarihî"],["اجْتِمَاعِيٌّ","sosyal"],
+["ثَقَافِيٌّ","kültürel"],["بِيئَةٌ","çevre"],["تَلَوُّثٌ","kirlilik"],["مَوَارِدٌ","kaynaklar"],
+["طَاقَةٌ","enerji"],["تِكْنُولُوجْيَا","teknoloji"],["ابْتِكَارٌ","yenilik"],["اِخْتِرَاعٌ","icat"],
+["بَحْثٌ","araştırma"],["دِرَاسَةٌ","çalışma"],["تَحْلِيلٌ","analiz"],["مَعْلُومَاتٌ","bilgiler"],
+["إِحْصَائِيَّاتٌ","istatistikler"],["تَقْرِيرٌ","rapor"],["مُؤَسَّسَةٌ","kurum"],["حُكُومَةٌ","hükümet"],
+["مُواطِنٌ","vatandaş"],["قَانُونٌ","kanun"],["حُقُوقٌ","haklar"],["وَاجِبَاتٌ","görevler"],
+["مُسَاوَاةٌ","eşitlik"],["مَسْأَلَةٌ","mesele"],["مَوْقِفٌ","durum"],["تَصَرُّفٌ","davranış"],
+["عَلَاقَةٌ","ilişki"],["اتِّصَالٌ","iletişim"],["تَعَاوُنٌ","iş birliği"],["مُنَافَسَةٌ","rekabet"],
+["قِيَادَةٌ","liderlik"],["إِدَارَةٌ","yönetim"],["تَخْطِيطٌ","planlama"],["تَنْظِيمٌ","organizasyon"],
+["إِنْجَازٌ","başarı"],["تَقَدُّمٌ","ilerleme"],["تَحْسِينٌ","iyileştirme"],["تَطْبِيقٌ","uygulama"]
+],
+
+5:[
+["فَلْسَفَةٌ","felsefe"],["مَنْهَجٌ","yöntem"],["مَفْهُومٌ","kavram"],["نَظَرِيَّةٌ","teori"],
+["فَرَضِيَّةٌ","hipotez"],["اسْتِنْتَاجٌ","çıkarım"],["اسْتِدْلَالٌ","akıl yürütme"],["مَنْطِقٌ","mantık"],
+["تَفْكِيرٌ","düşünme"],["تَأَمُّلٌ","tefekkür"],["وَعْيٌ","bilinç"],["إِدْرَاكٌ","algı"],
+["مَعْنًى","anlam"],["قِيمَةٌ","değer"],["مَبْدَأٌ","ilke"],["مَعْيَارٌ","ölçüt"],
+["مُقَارَنَةٌ","karşılaştırma"],["اخْتِلَافٌ","farklılık"],["تَشَابُهٌ","benzerlik"],["تَنَاقُضٌ","çelişki"],
+["ظَاهِرَةٌ","olgu"],["قَضِيَّةٌ","mesele"],["مُجَرَّدٌ","soyut"],["مَلْمُوسٌ","somut"],
+["مُعَقَّدٌ","karmaşık"],["بَسِيطٌ","basit"],["ضَرُورِيٌّ","gerekli"],["احْتِمَالٌ","olasılık"],
+["تَحَقُّقٌ","gerçekleşme"],["تَفْسِيرٌ","açıklama"],["تَحْدِيدٌ","belirleme"],["تَصْنِيفٌ","sınıflandırma"],
+["تَقْيِيمٌ","değerlendirme"],["مُرَاجَعَةٌ","inceleme"],["تَوْثِيقٌ","belgeleme"],["مَصْدَرٌ","kaynak"],
+["مَرْجِعٌ","referans"],["دَلِيلٌ","kanıt"],["بُرْهَانٌ","delil"],["اسْتِجَابَةٌ","tepki"]
+],
+
+6:[
+["اسْتِقْرَارٌ","istikrar"],["اسْتِدَامَةٌ","sürdürülebilirlik"],["شُمُولِيَّةٌ","kapsamlılık"],["مَوْضُوعِيَّةٌ","nesnellik"],
+["ذَاتِيَّةٌ","öznellik"],["مُرُونَةٌ","esneklik"],["مَسْؤُولِيَّةٌ","sorumluluk"],["مُسَاءَلَةٌ","hesap verebilirlik"],
+["شَفَافِيَّةٌ","şeffaflık"],["حَوْكَمَةٌ","yönetişim"],["مُبَادَرَةٌ","girişim"],["رِيَادَةٌ","girişimcilik"],
+["إِسْتِرَاتِيجِيَّةٌ","strateji"],["أَوْلَوِيَّةٌ","öncelik"],["تَنَافُسِيَّةٌ","rekabet gücü"],["إِنْتَاجِيَّةٌ","üretkenlik"],
+["كَفَاءَةٌ","verimlilik"],["فَعَّالِيَّةٌ","etkililik"],["اسْتِقْرَاءٌ","tümevarım"],["اسْتِنْبَاطٌ","tümdengelim"],
+["مُعَالَجَةٌ","işleme"],["تَرْكِيبٌ","sentez"],["تَفْكِيكٌ","ayrıştırma"],["تَجْرِيدٌ","soyutlama"],
+["تَخَصُّصٌ","uzmanlaşma"],["تَكَامُلٌ","bütünleşme"],["تَرَابُطٌ","bağlantı"],["تَدَاخُلٌ","etkileşim"],
+["مُسَاهَمَةٌ","katkı"],["مُقَارَبَةٌ","yaklaşım"],["مَنْظُورٌ","bakış açısı"],["سِيَاقٌ","bağlam"],
+["مُحْتَوًى","içerik"],["مَضْمُونٌ","öz"],["مُؤَشِّرٌ","gösterge"],["مُحَدِّدٌ","belirleyici"],
+["مُرَاجِعٌ","denetçi"],["مُحَلِّلٌ","analist"],["مُتَخَصِّصٌ","uzman"],["خِبْرَةٌ","uzmanlık"]
+]
+};
+
+
+/* =========================================================
+   UZUN HİKÂYELER
+========================================================= */
+
+const storyPool = {
+
+1:[
+{
+title:"رحلة أحمد الأولى إلى المدينة",
+text:`
+فِي صَبَاحِ يَوْمٍ جَمِيلٍ، اسْتَيْقَظَ أَحْمَدُ مُبَكِّرًا وَنَظَرَ مِنَ النَّافِذَةِ.
+كَانَتِ الشَّمْسُ مُشْرِقَةً وَالسَّمَاءُ زَرْقَاءَ، وَلَمْ يَكُنْ هُنَاكَ مَطَرٌ.
+كَانَ أَحْمَدُ سَعِيدًا لِأَنَّهُ سَيَذْهَبُ مَعَ أَبِيهِ إِلَى الْمَدِينَةِ لِأَوَّلِ مَرَّةٍ.
+لَبِسَ ثَوْبَهُ، وَأَخَذَ حَقِيبَتَهُ وَكِتَابَهُ وَقَلَمَهُ، ثُمَّ خَرَجَ مِنَ الْبَيْتِ.
+كَانَ أَبُوهُ يَنْتَظِرُهُ أَمَامَ الْبَابِ بِسَيَّارَتِهِ.
+رَكِبَ أَحْمَدُ السَّيَّارَةَ وَبَدَأَتِ الرِّحْلَةُ.
+فِي الطَّرِيقِ، رَأَى أَشْجَارًا كَثِيرَةً وَبُيُوتًا صَغِيرَةً وَمَدْرَسَةً كَبِيرَةً.
+بَعْدَ سَاعَتَيْنِ، وَصَلَا إِلَى الْمَدِينَةِ.
+كَانَتِ الْمَدِينَةُ كَبِيرَةً وَمُمْتَلِئَةً بِالنَّاسِ وَالسَّيَّارَاتِ.
+زَارَ أَحْمَدُ مَكْتَبَةً كَبِيرَةً، وَاشْتَرَى كِتَابًا جَدِيدًا، ثُمَّ ذَهَبَ مَعَ أَبِيهِ إِلَى مَطْعَمٍ قَرِيبٍ.
+فِي نِهَايَةِ الْيَوْمِ، جَلَسَ أَحْمَدُ فِي السَّيَّارَةِ وَهُوَ يُفَكِّرُ فِي كُلِّ الْأَشْيَاءِ الْجَدِيدَةِ الَّتِي رَآهَا.
+كَانَ يَعْرِفُ أَنَّ هَذَا الْيَوْمَ سَيَبْقَى فِي ذَاكِرَتِهِ طَوِيلًا.
+`,
+tr:`
+Güzel bir günün sabahında Ahmed erkenden uyandı ve pencereden dışarı baktı.
+Güneş parlıyordu, gökyüzü maviydi ve yağmur yoktu.
+Ahmed mutluydu çünkü babasıyla ilk kez şehre gidecekti.
+Elbiselerini giydi, çantasını, kitabını ve kalemini aldı ve evden çıktı.
+Babası onu arabanın yanında bekliyordu.
+Yolculuk başladı. Ahmed yolda birçok ağaç, küçük evler ve büyük bir okul gördü.
+İki saat sonra şehre ulaştılar.
+Şehir büyüktü ve insanlarla ve arabalarla doluydu.
+Ahmed büyük bir kütüphaneyi ziyaret etti, yeni bir kitap aldı ve babasıyla yakın bir restorana gitti.
+Günün sonunda gördüğü bütün yeni şeyleri düşündü.
+Bu günün uzun süre hafızasında kalacağını biliyordu.
+`
+},
+
+{
+title:"الطالبة والكتاب الجديد",
+text:`
+كَانَتْ مَرْيَمُ طَالِبَةً مُجْتَهِدَةً تُحِبُّ الْقِرَاءَةَ كَثِيرًا.
+كَانَتْ تَذْهَبُ إِلَى الْمَدْرَسَةِ كُلَّ صَبَاحٍ وَتَجْلِسُ فِي الْفَصْلِ قُرْبَ النَّافِذَةِ.
+فِي يَوْمٍ مِنَ الْأَيَّامِ، أَعْطَاهَا الْمُعَلِّمُ كِتَابًا جَدِيدًا.
+كَانَ الْكِتَابُ عَنْ رِحْلَةِ فَتَاةٍ صَغِيرَةٍ إِلَى بَلَدٍ بَعِيدٍ.
+أَحَبَّتْ مَرْيَمُ الْقِصَّةَ مِنَ الصَّفْحَةِ الْأُولَى.
+بَعْدَ الْمَدْرَسَةِ، عَادَتْ إِلَى الْبَيْتِ وَجَلَسَتْ فِي غُرْفَتِهَا.
+فَتَحَتِ الْكِتَابَ وَبَدَأَتْ تَقْرَأُ.
+مَرَّتْ سَاعَةٌ وَهِيَ لَا تَشْعُرُ بِالْوَقْتِ.
+كُلَّمَا قَرَأَتْ صَفْحَةً جَدِيدَةً، كَتَبَتْ كَلِمَاتٍ لَا تَعْرِفُهَا فِي دَفْتَرٍ صَغِيرٍ.
+وَعِنْدَمَا وَصَلَتْ إِلَى نِهَايَةِ الْفَصْلِ الْأَوَّلِ، أَرَادَتْ أَنْ تَعْرِفَ مَاذَا سَيَحْدُثُ فِي الْفَصْلِ التَّالِي.
+قَالَتْ لِأُمِّهَا: سَأَقْرَأُ هَذَا الْكِتَابَ كُلَّ يَوْمٍ حَتَّى أُنْهِيَهُ.
+`,
+tr:`
+Meryem okumayı çok seven çalışkan bir öğrenciydi.
+Her sabah okula gider ve sınıfta pencerenin yanında otururdu.
+Bir gün öğretmeni ona yeni bir kitap verdi.
+Kitap, küçük bir kızın uzak bir ülkeye yaptığı yolculuk hakkındaydı.
+Meryem hikâyeyi ilk sayfadan itibaren sevdi.
+Okuldan sonra eve döndü, odasına oturdu ve kitabı okumaya başladı.
+Bir saat geçti ve zamanın nasıl geçtiğini fark etmedi.
+Her yeni sayfada bilmediği kelimeleri küçük bir deftere yazdı.
+İlk bölümün sonuna geldiğinde sonraki bölümde ne olacağını merak etti.
+Annesine bu kitabı her gün okuyup bitireceğini söyledi.
+`
+}
+],
+
+2:[
+{
+title:"رحلة عمر بالقطار",
+text:`
+فِي صَبَاحِ يَوْمِ السَّبْتِ، اسْتَيْقَظَ عُمَرُ قَبْلَ شُرُوقِ الشَّمْسِ.
+كَانَ لَدَيْهِ مَوْعِدٌ مُهِمٌّ فِي مَدِينَةٍ بَعِيدَةٍ، وَلِذَلِكَ قَرَّرَ أَنْ يَذْهَبَ إِلَيْهَا بِالْقِطَارِ.
+جَهَّزَ حَقِيبَتَهُ فِي اللَّيْلَةِ السَّابِقَةِ وَوَضَعَ فِيهَا كِتَابًا وَبَعْضَ الطَّعَامِ وَزُجَاجَةَ مَاءٍ.
+عِنْدَمَا وَصَلَ إِلَى الْمَحَطَّةِ، كَانَ النَّاسُ يَنْتَظِرُونَ الْقِطَارَ.
+جَلَسَ عُمَرُ عَلَى كُرْسِيٍّ قَرِيبٍ وَبَدَأَ يَقْرَأُ كِتَابَهُ.
+بَعْدَ قَلِيلٍ، وَصَلَ الْقِطَارُ.
+رَكِبَ عُمَرُ وَوَجَدَ مَقْعَدًا بِجَانِبِ النَّافِذَةِ.
+خِلَالَ الرِّحْلَةِ، رَأَى الْجِبَالَ وَالْأَنْهَارَ وَالْقُرَى الصَّغِيرَةَ.
+جَلَسَ إِلَى جَانِبِهِ رَجُلٌ كَبِيرٌ فِي السِّنِّ وَبَدَأَ الْحَدِيثَ مَعَهُ.
+تَحَدَّثَا عَنِ السَّفَرِ وَالْحَيَاةِ وَالْمُدُنِ.
+وَعِنْدَمَا وَصَلَ عُمَرُ إِلَى الْمَدِينَةِ، شَكَرَ الرَّجُلَ وَنَزَلَ مِنَ الْقِطَارِ.
+كَانَ يَشْعُرُ أَنَّ الرِّحْلَةَ لَمْ تَكُنْ مُجَرَّدَ سَفَرٍ، بَلْ كَانَتْ تَجْرِبَةً جَدِيدَةً.
+`,
+tr:`
+Cumartesi sabahı Ömer güneş doğmadan önce uyandı.
+Uzak bir şehirde önemli bir randevusu vardı ve oraya trenle gitmeye karar verdi.
+Çantasını önceki gece hazırladı; içine bir kitap, biraz yemek ve bir şişe su koydu.
+İstasyona geldiğinde insanlar treni bekliyordu.
+Ömer yakındaki bir sandalyeye oturup kitabını okumaya başladı.
+Bir süre sonra tren geldi.
+Trene bindi ve pencerenin yanında bir koltuk buldu.
+Yolculuk sırasında dağları, nehirleri ve küçük köyleri gördü.
+Yanına yaşlı bir adam oturdu ve onunla konuşmaya başladı.
+Seyahat, hayat ve şehirler hakkında konuştular.
+Ömer şehre vardığında adama teşekkür etti.
+Bu yolculuğun yalnızca bir seyahat değil, yeni bir deneyim olduğunu düşündü.
+`
+}
+],
+
+3:[
+{
+title:"فرصة لم يكن يتوقعها",
+text:`
+كَانَ سَامِرٌ يَعْمَلُ فِي شَرِكَةٍ صَغِيرَةٍ مُنْذُ ثَلَاثِ سَنَوَاتٍ.
+كَانَ يُحِبُّ عَمَلَهُ، وَلَكِنَّهُ كَانَ يَشْعُرُ أَحْيَانًا أَنَّهُ لَا يَتَقَدَّمُ بِالسُّرْعَةِ الَّتِي يُرِيدُهَا.
+فِي يَوْمٍ مِنَ الْأَيَّامِ، أَعْلَنَ مُدِيرُ الشَّرِكَةِ عَنْ مَشْرُوعٍ جَدِيدٍ.
+كَانَ الْمَشْرُوعُ صَعْبًا وَيَحْتَاجُ إِلَى شَخْصٍ يَمْلِكُ مَهَارَاتٍ مُخْتَلِفَةً.
+فَكَّرَ سَامِرٌ طَوِيلًا، ثُمَّ قَرَّرَ أَنْ يُقَدِّمَ نَفْسَهُ لِلْمُهِمَّةِ.
+فِي الْبِدَايَةِ، لَمْ يَكُنْ وَاثِقًا مِنْ قُدْرَتِهِ عَلَى النَّجَاحِ.
+كَانَتْ هُنَاكَ مُشْكِلَاتٌ كَثِيرَةٌ، وَكَانَ عَلَيْهِ أَنْ يَتَعَلَّمَ أَشْيَاءَ جَدِيدَةً.
+طَلَبَ مُسَاعَدَةَ زُمَلَائِهِ، وَبَدَأَ يَدْرُسُ كُلَّ يَوْمٍ بَعْدَ انْتِهَاءِ الْعَمَلِ.
+بَعْدَ أَسَابِيعَ طَوِيلَةٍ، نَجَحَ الْفَرِيقُ فِي إِنْهَاءِ الْمَشْرُوعِ.
+قَالَ لَهُ الْمُدِيرُ: كَانَتْ هَذِهِ فُرْصَةً مُهِمَّةً، وَأَنْتَ اسْتَغْلَلْتَهَا بِشَكْلٍ جَيِّدٍ.
+فَهِمَ سَامِرٌ أَنَّ النَّجَاحَ لَا يَأْتِي دَائِمًا مِنْ فُرْصَةٍ سَهْلَةٍ، بَلْ مِنَ الشَّجَاعَةِ فِي مُوَاجَهَةِ التَّحَدِّي.
+`,
+tr:`
+Samer üç yıldır küçük bir şirkette çalışıyordu.
+İşini seviyordu fakat bazen istediği kadar hızlı ilerlemediğini hissediyordu.
+Bir gün şirket müdürü yeni bir proje duyurdu.
+Proje zordu ve farklı becerilere sahip bir kişiye ihtiyaç vardı.
+Samer uzun süre düşündü ve görevi üstlenmeye karar verdi.
+Başlangıçta başarılı olup olamayacağından emin değildi.
+Birçok problem vardı ve yeni şeyler öğrenmesi gerekiyordu.
+Arkadaşlarından yardım istedi ve her gün işten sonra çalışmaya başladı.
+Uzun haftaların ardından ekip projeyi tamamlamayı başardı.
+Müdürü onun fırsatı iyi değerlendirdiğini söyledi.
+Samer başarının her zaman kolay bir fırsattan değil, zorluklarla mücadele etme cesaretinden geldiğini anladı.
+`
+}
+],
+
+4:[
+{
+title:"المدينة التي أرادت أن تتغير",
+text:`
+كَانَتْ هُنَاكَ مَدِينَةٌ كَبِيرَةٌ تَعَانِي مُنْذُ سَنَوَاتٍ مِنْ مُشْكِلَاتٍ بِيئِيَّةٍ مُخْتَلِفَةٍ.
+كَانَتِ الشَّوَارِعُ تَمْتَلِئُ بِالسَّيَّارَاتِ، وَكَانَ التَّلَوُّثُ يَزْدَادُ كُلَّ عَامٍ.
+كَانَ السُّكَّانُ يَشْكُونَ مِنْ قِلَّةِ الْحَدَائِقِ وَالْمَسَاحَاتِ الْخَضْرَاءِ.
+فِي أَحَدِ الْأَيَّامِ، اجْتَمَعَتِ الْحُكُومَةُ الْمَحَلِّيَّةُ مَعَ مَجْمُوعَةٍ مِنَ الْمُوَاطِنِينَ.
+تَحَدَّثُوا عَنْ مُسْتَقْبَلِ الْمَدِينَةِ وَعَنْ طُرُقٍ يُمْكِنُ أَنْ تُسَاعِدَ عَلَى تَحْسِينِ الْحَيَاةِ.
+اقْتَرَحَ أَحَدُهُمْ زِيَادَةَ عَدَدِ الْحَدَائِقِ.
+وَاقْتَرَحَ آخَرُ إِنْشَاءَ طُرُقٍ خَاصَّةٍ لِلدَّرَّاجَاتِ.
+كَانَ هُنَاكَ أَيْضًا مَنْ اقْتَرَحَ اسْتِخْدَامَ مَصَادِرَ طَاقَةٍ نَظِيفَةٍ.
+لَمْ تَكُنِ الْخُطَّةُ سَهْلَةً، وَلَكِنَّ الْجَمِيعَ اتَّفَقَ عَلَى أَنَّ التَّغْيِيرَ ضَرُورِيٌّ.
+بَعْدَ عَامٍ، بَدَأَتِ الْمَدِينَةُ تَشْهَدُ تَغَيُّرًا حَقِيقِيًّا.
+أَصْبَحَتِ الْحَدَائِقُ أَكْثَرَ، وَقَلَّ اسْتِخْدَامُ السَّيَّارَاتِ فِي بَعْضِ الْمَنَاطِقِ.
+أَدْرَكَ السُّكَّانُ أَنَّ الْمَدِينَةَ لَا تَتَغَيَّرُ بِقَرَارٍ وَاحِدٍ، بَلْ بِمُشَارَكَةِ الْجَمِيعِ.
+`,
+tr:`
+Büyük bir şehir yıllardır çeşitli çevre sorunlarıyla mücadele ediyordu.
+Caddeler arabalarla doluydu ve kirlilik her yıl artıyordu.
+Halk parkların ve yeşil alanların azlığından şikâyet ediyordu.
+Bir gün yerel yönetim vatandaşlarla bir toplantı yaptı.
+Şehrin geleceğini ve yaşamı iyileştirecek yöntemleri konuştular.
+Bazıları parkların artırılmasını, bazıları bisiklet yolları yapılmasını önerdi.
+Başka biri temiz enerji kaynaklarının kullanılmasını önerdi.
+Plan kolay değildi fakat herkes değişimin gerekli olduğuna karar verdi.
+Bir yıl sonra şehir gerçek bir değişim yaşamaya başladı.
+Parklar arttı ve bazı bölgelerde araba kullanımı azaldı.
+Halk şehrin tek bir kararla değil, herkesin katılımıyla değişebileceğini anladı.
+`
+}
+],
+
+5:[
+{
+title:"الباحث الذي لم يثق بالنتيجة الأولى",
+text:`
+كَانَ يُوسُفُ بَاحِثًا يَعْمَلُ فِي مَرْكَزٍ لِلدِّرَاسَاتِ وَالْبُحُوثِ.
+كَانَ مُهْتَمًّا بِفَهْمِ سُلُوكِ النَّاسِ وَبِالطُّرُقِ الَّتِي تُؤَثِّرُ فِي قَرَارَاتِهِمْ.
+فِي أَحَدِ الْأَبْحَاثِ، حَصَلَ عَلَى نَتِيجَةٍ بَدَتْ لَهُ فِي الْبِدَايَةِ وَاضِحَةً جِدًّا.
+كَانَ يُمْكِنُ أَنْ يَكْتُبَ تَقْرِيرَهُ بِسُرْعَةٍ وَأَنْ يُقَدِّمَ النَّتِيجَةَ إِلَى إِدَارَةِ الْمَرْكَزِ.
+لَكِنَّهُ لَمْ يَفْعَلْ ذَلِكَ.
+قَالَ لِزَمِيلِهِ: لَا أُرِيدُ أَنْ أَصِلَ إِلَى اسْتِنْتَاجٍ قَبْلَ أَنْ أَتَأَكَّدَ مِنْ كُلِّ التَّفَاصِيلِ.
+عَادَ إِلَى الْمَصَادِرِ وَقَرَأَ الدِّرَاسَاتِ السَّابِقَةَ.
+ثُمَّ أَعَادَ تَحْلِيلَ الْمَعْلُومَاتِ بِطَرِيقَةٍ مُخْتَلِفَةٍ.
+بَعْدَ أَيَّامٍ، اكْتَشَفَ أَنَّ جُزْءًا مِنَ النَّتِيجَةِ الْأُولَى كَانَ مُتَأَثِّرًا بِعَامِلٍ لَمْ يَنْتَبِهْ إِلَيْهِ فِي الْبِدَايَةِ.
+كَانَتِ النَّتِيجَةُ الْجَدِيدَةُ أَكْثَرَ تَعْقِيدًا، وَلَكِنَّهَا كَانَتْ أَقْرَبَ إِلَى الْحَقِيقَةِ.
+فَهِمَ يُوسُفُ أَنَّ الْبَحْثَ الْجَيِّدَ لَيْسَ فِي الْوُصُولِ إِلَى إِجَابَةٍ سَرِيعَةٍ، بَلْ فِي قُدْرَةِ الْبَاحِثِ عَلَى الشَّكِّ وَالْمُرَاجَعَةِ وَالتَّحْقِيقِ.
+`,
+tr:`
+Yusuf bir araştırma merkezinde çalışan bir araştırmacıydı.
+İnsanların davranışlarını ve kararlarını etkileyen faktörleri anlamaya ilgi duyuyordu.
+Bir araştırmada başlangıçta çok açık görünen bir sonuç elde etti.
+Raporunu hemen yazıp sonucu yönetime sunabilirdi.
+Fakat bunu yapmadı.
+Her ayrıntıdan emin olmadan sonuca ulaşmak istemediğini söyledi.
+Kaynaklara geri döndü, önceki çalışmaları okudu ve bilgileri farklı bir yöntemle yeniden analiz etti.
+Birkaç gün sonra ilk sonucun başlangıçta fark etmediği bir faktörden etkilendiğini keşfetti.
+Yeni sonuç daha karmaşıktı fakat gerçeğe daha yakındı.
+Yusuf iyi araştırmanın hızlı bir cevaba ulaşmak değil; şüphe etmek, yeniden incelemek ve doğrulamak olduğunu anladı.
+`
+}
+],
+
+6:[
+{
+title:"مستقبل المؤسسة والقرار الصعب",
+text:`
+كَانَتْ مُؤَسَّسَةٌ كَبِيرَةٌ تَمُرُّ بِمَرْحَلَةٍ حَاسِمَةٍ فِي تَارِيخِهَا.
+كَانَتِ الْمُؤَسَّسَةُ قَدْ نَجَحَتْ لِسَنَوَاتٍ طَوِيلَةٍ، وَلَكِنَّ الْبِيئَةَ الِاقْتِصَادِيَّةَ وَالتِّقْنِيَّةَ كَانَتْ تَتَغَيَّرُ بِسُرْعَةٍ.
+أَدْرَكَتِ الْإِدَارَةُ أَنَّ الطُّرُقَ الْقَدِيمَةَ لَنْ تَكُونَ كَافِيَةً لِلْمُسْتَقْبَلِ.
+لِذَلِكَ شَكَّلَتْ فَرِيقًا مُتَخَصِّصًا لِدِرَاسَةِ الْمَوْقِفِ بِشَكْلٍ شَامِلٍ.
+جَمَعَ الْفَرِيقُ مَعْلُومَاتٍ مِنْ أَقْسَامٍ مُخْتَلِفَةٍ، وَقَارَنَ النَّتَائِجَ، وَدَرَسَ الْمَخَاطِرَ وَالْفُرَصَ.
+كَانَتْ هُنَاكَ خِيَارَاتٌ كَثِيرَةٌ، وَلَمْ يَكُنْ أَيٌّ مِنْهَا خَالِيًا مِنَ الْمَخَاطِرِ.
+اقْتَرَحَ بَعْضُ أَعْضَاءِ الْفَرِيقِ الِاسْتِثْمَارَ فِي التِّكْنُولُوجْيَا.
+وَرَأَى آخَرُونَ أَنَّ الْأَوْلَوِيَّةَ يَجِبُ أَنْ تَكُونَ لِتَطْوِيرِ الْمَوَارِدِ الْبَشَرِيَّةِ.
+بَعْدَ أَسَابِيعَ مِنَ النِّقَاشِ، تَوَصَّلَ الْفَرِيقُ إِلَى خُطَّةٍ تَجْمَعُ بَيْنَ الْخِيَارَيْنِ.
+لَمْ تَكُنِ الْخُطَّةُ سَهْلَةَ التَّنْفِيذِ، وَلَكِنَّهَا كَانَتْ أَكْثَرَ تَوَازُنًا.
+قَرَّرَتِ الْإِدَارَةُ تَطْبِيقَهَا تَدْرِيجِيًّا وَمُرَاجَعَةَ النَّتَائِجِ كُلَّ ثَلَاثَةِ أَشْهُرٍ.
+بَعْدَ عَامٍ، أَظْهَرَتِ الْمُؤَشِّرَاتُ أَنَّ الْمُؤَسَّسَةَ أَصْبَحَتْ أَكْثَرَ مُرُونَةً وَقُدْرَةً عَلَى التَّكَيُّفِ.
+أَدْرَكَ الْفَرِيقُ أَنَّ النَّجَاحَ لَا يَعْنِي أَنْ تَعْرِفَ الْمُسْتَقْبَلَ، بَلْ أَنْ تَكُونَ مُسْتَعِدًّا لِلتَّعَامُلِ مَعَ مَا لَا تَعْرِفُهُ.
+`,
+tr:`
+Büyük bir kurum tarihinin kritik bir döneminden geçiyordu.
+Yıllardır başarılıydı fakat ekonomik ve teknolojik çevre hızla değişiyordu.
+Yönetim eski yöntemlerin gelecek için yeterli olmayacağını fark etti.
+Bu nedenle durumu kapsamlı biçimde incelemek için uzman bir ekip kuruldu.
+Ekip farklı bölümlerden bilgiler topladı, sonuçları karşılaştırdı, riskleri ve fırsatları inceledi.
+Birçok seçenek vardı ve hiçbiri risksiz değildi.
+Bazı ekip üyeleri teknolojiye yatırım yapılmasını, bazıları ise insan kaynaklarının geliştirilmesini önerdi.
+Haftalar süren tartışmadan sonra iki seçeneği birleştiren dengeli bir plan hazırlandı.
+Yönetim planı aşamalı olarak uygulamaya ve sonuçları üç ayda bir değerlendirmeye karar verdi.
+Bir yıl sonra göstergeler kurumun daha esnek ve değişime daha uyumlu hâle geldiğini gösterdi.
+Ekip başarının geleceği bilmek değil, bilinmeyen durumlarla başa çıkmaya hazır olmak olduğunu anladı.
+`
+}
+]
+};
+
+
+/* =========================================================
+   CÜMLELER
+========================================================= */
+
+const sentencePool = {
+1:[
+["ذَهَبَ الطَّالِبُ إِلَى الْمَدْرَسَةِ","Öğrenci okula gitti."],
+["شَرِبَ أَحْمَدُ الْمَاءَ","Ahmed su içti."],
+["قَرَأَتْ مَرْيَمُ الْكِتَابَ","Meryem kitabı okudu."],
+["جَلَسَ الْوَلَدُ عَلَى الْكُرْسِيِّ","Çocuk sandalyeye oturdu."],
+["فَتَحَ الْمُعَلِّمُ الْبَابَ","Öğretmen kapıyı açtı."]
+],
+2:[
+["ذَهَبَ عُمَرُ إِلَى الْمَطَارِ","Ömer havaalanına gitti."],
+["وَصَلَ الْقِطَارُ إِلَى الْمَحَطَّةِ","Tren istasyona ulaştı."],
+["ذَهَبَ الْمَرِيضُ إِلَى الْمُسْتَشْفَى","Hasta hastaneye gitti."],
+["سَافَرَتْ سَلْمَى إِلَى مَدِينَةٍ بَعِيدَةٍ","Selma uzak bir şehre seyahat etti."],
+["كَانَ الْجَوُّ بَارِدًا","Hava soğuktu."]
+],
+3:[
+["كَانَ لَدَيْهِ هَدَفٌ وَاضِحٌ","Onun açık bir hedefi vardı."],
+["بَحَثَ عَنْ حَلٍّ لِلْمُشْكِلَةِ","Problem için bir çözüm aradı."],
+["اتَّخَذَ قَرَارًا مُهِمًّا","Önemli bir karar aldı."],
+["تَعَلَّمَ مَهَارَةً جَدِيدَةً","Yeni bir beceri öğrendi."],
+["احْتَاجَ إِلَى مُسَاعَدَةِ صَدِيقِهِ","Arkadaşının yardımına ihtiyaç duydu."]
+],
+4:[
+["تُؤَثِّرُ التِّكْنُولُوجْيَا فِي الْمُجْتَمَعِ","Teknoloji toplumu etkiliyor."],
+["تَحْتَاجُ الْبِيئَةُ إِلَى حِمَايَةٍ","Çevrenin korunmaya ihtiyacı var."],
+["قَدَّمَ الْفَرِيقُ تَقْرِيرًا مُفَصَّلًا","Ekip ayrıntılı bir rapor sundu."],
+["تَعَاوَنَتِ الْمُؤَسَّسَاتُ فِي الْمَشْرُوعِ","Kurumlar projede iş birliği yaptı."],
+["سَاعَدَ التَّخْطِيطُ عَلَى تَحْسِينِ النَّتَائِجِ","Planlama sonuçların iyileşmesine yardımcı oldu."]
+],
+5:[
+["يَحْتَاجُ الْبَحْثُ إِلَى مَنْهَجٍ وَاضِحٍ","Araştırma açık bir yönteme ihtiyaç duyar."],
+["قَارَنَ الْبَاحِثُ بَيْنَ النَّتَائِجِ","Araştırmacı sonuçları karşılaştırdı."],
+["يَجِبُ التَّأَكُّدُ مِنْ صِحَّةِ الْمَصْدَرِ","Kaynağın doğruluğu kontrol edilmelidir."],
+["يَعْتَمِدُ الِاسْتِنْتَاجُ عَلَى الْأَدِلَّةِ","Çıkarım kanıtlara dayanır."],
+["يُسَاعِدُ التَّفْكِيرُ النَّقْدِيُّ عَلَى فَهْمِ الْمَسْأَلَةِ","Eleştirel düşünme meseleyi anlamaya yardımcı olur."]
+],
+6:[
+["تَتَطَلَّبُ التَّنْمِيَةُ الْمُسْتَدَامَةُ تَعَاوُنًا دَوْلِيًّا","Sürdürülebilir kalkınma uluslararası iş birliği gerektirir."],
+["تَعْتَمِدُ الْكَفَاءَةُ عَلَى حُسْنِ التَّنْظِيمِ","Verimlilik iyi organizasyona bağlıdır."],
+["يَجِبُ تَحْلِيلُ السِّيَاقِ قَبْلَ اتِّخَاذِ الْقَرَارِ","Karar vermeden önce bağlam analiz edilmelidir."],
+["تُسَاهِمُ الْخِبْرَةُ فِي تَحْسِينِ الْأَدَاءِ","Uzmanlık performansın iyileştirilmesine katkıda bulunur."],
+["يَتَطَلَّبُ التَّغْيِيرُ مَرُونَةً وَقُدْرَةً عَلَى التَّكَيُّفِ","Değişim esneklik ve uyum sağlama yeteneği gerektirir."]
+]
+};
+
+
+/* =========================================================
+   ARAPÇA KLAVYE
+========================================================= */
+
+const arabicKeyboardLayout=[
+"ا","ب","ت","ث","ج","ح","خ","د","ذ","ر",
+"ز","س","ش","ص","ض","ط","ظ","ع","غ","ف",
+"ق","ك","ل","م","ن","ه","و","ي","ء","ة",
+"ى","ئ","ؤ","َ","ُ","ِ","ّ","ْ","ً","ٍ"
+];
+
+
+/* =========================================================
+   OYUN DEĞİŞKENLERİ
+========================================================= */
+
+let currentLevel=1;
+let currentMode="matching";
+let currentQuestion=0;
+let score=0;
+
+let modeQuestions={};
+
+let selectedLeft=null;
+let selectedRight=null;
+let answered=false;
+let xp=0;
+let streak=0;
+let usedWordsByLevel={};
+try{
+    const savedGame=JSON.parse(localStorage.getItem("arabicGameProgress")||"null");
+    if(savedGame){xp=Number(savedGame.xp)||0;streak=Number(savedGame.streak)||0;usedWordsByLevel=savedGame.usedWordsByLevel||{};}
+}catch(e){}
+
+
+/* =========================================================
+   YARDIMCI FONKSİYONLAR
+========================================================= */
+
+function shuffle(array){
+
+    const arr=[...array];
+
+    for(let i=arr.length-1;i>0;i--){
+
+        const j=Math.floor(Math.random()*(i+1));
+
+        [arr[i],arr[j]]=[arr[j],arr[i]];
+    }
+
+    return arr;
+}
+
+
+function normalizeArabic(text){
+
+    return text
+        .replace(/[ًٌٍَُِّْـ]/g,"")
+        .replace(/[إأآا]/g,"ا")
+        .replace(/ى/g,"ي")
+        .replace(/ة/g,"ه")
+        .replace(/\s+/g," ")
+        .trim();
+}
+
+
+/* =========================================================
+   SORULARI HAZIRLA
+========================================================= */
+
+function prepareQuestions(){
+    const pool=wordPool[currentLevel] || [];
+    const levelKey=String(currentLevel);
+    const used=new Set(usedWordsByLevel[levelKey] || []);
+    let fresh=pool.filter(x=>!used.has(normalizeArabic(x[0])));
+    if(fresh.length<Math.min(20,pool.length)){
+        used.clear();
+        usedWordsByLevel[levelKey]=[];
+        fresh=[...pool];
+    }
+    const words=shuffle(fresh.length?fresh:pool);
+    const selected=words.slice(0,Math.min(40,words.length));
+    selected.forEach(x=>used.add(normalizeArabic(x[0])));
+    usedWordsByLevel[levelKey]=[...used];
+    saveGameProgress();
+
+    const matching=[];
+    for(let i=0;i+3<selected.length;i+=4){
+        matching.push({items:selected.slice(i,i+4).map(x=>({ar:x[0],tr:x[1]}))});
+    }
+    if(!matching.length && selected.length){
+        matching.push({items:selected.slice(0,Math.min(4,selected.length)).map(x=>({ar:x[0],tr:x[1]}))});
+    }
+
+    modeQuestions={
+        matching,
+        puzzle:selected.map(x=>({ar:x[0],tr:x[1]})),
+        completion:selected.map(x=>({ar:x[0],tr:x[1]})),
+        sentence:shuffle(sentencePool[currentLevel]||[]),
+        dictation:shuffle(sentencePool[currentLevel]||[]),
+        letters:selected.map(x=>({ar:x[0],tr:x[1]})),
+        hint:selected.map(x=>({ar:x[0],tr:x[1]})),
+        story:shuffle(storyPool[currentLevel]||[])
+    };
+
+    currentQuestion=0;
+    answered=false;
+    selectedLeft=null;
+    selectedRight=null;
+    updateUI();
+    loadQuestion();
+}
+
+function saveGameProgress(){
+    localStorage.setItem("arabicGameProgress",JSON.stringify({xp,streak,usedWordsByLevel}));
+}
+
+function reward(points,message){
+    score+=points; xp+=points; streak+=1; saveGameProgress();
+    if(message)document.getElementById("feedback").textContent=message;
+    updateUI();
+}
+
+function fail(message){
+    streak=0; saveGameProgress();
+    if(message)document.getElementById("feedback").textContent=message;
+    updateUI();
+}
+
+/* =========================================================
+   ARAYÜZ
+========================================================= */
+
+function updateUI(){
+    document.getElementById("levelBadge").textContent=levelNames[currentLevel];
+    const total=modeQuestions[currentMode] ? modeQuestions[currentMode].length : 1;
+    document.getElementById("progressText").textContent=`${Math.min(currentQuestion+1,Math.max(total,1))} / ${Math.max(total,1)}`;
+    document.getElementById("score").textContent=score;
+    const xpEl=document.getElementById("xpValue"); if(xpEl)xpEl.textContent=`${xp} XP`;
+    const streakEl=document.getElementById("streakValue"); if(streakEl)streakEl.textContent=streak;
+    const rank=xp>=800?"Arapça Ustası":xp>=400?"Kelime Avcısı":xp>=180?"Cümle Kurucu":xp>=60?"Yükselen Öğrenci":"Yeni Başlangıç";
+    const rankEl=document.getElementById("rankValue"); if(rankEl)rankEl.textContent=rank;
+    const fill=document.getElementById("xpFill"); if(fill)fill.style.width=`${Math.min(100,xp%100)}%`;
+}
+
+
+function manualLevelSelect(level){
+
+    currentLevel=level;
+
+    document.querySelectorAll(".level-btn").forEach((btn,index)=>{
+        btn.classList.toggle("active",index+1===level);
+    });
+
+    prepareQuestions();
+}
+
+
+function switchMode(mode,button){
+
+    currentMode=mode;
+    currentQuestion=0;
+
+    document.querySelectorAll(".mode-btn")
+        .forEach(btn=>btn.classList.remove("active"));
+
+    button.classList.add("active");
+
+    prepareQuestions();
+}
+
+
+/* =========================================================
+   SORU YÜKLE
+========================================================= */
+
+function loadQuestion(){
+    const area=document.getElementById("gameArea");
+    area.innerHTML="";
+    document.getElementById("feedback").textContent="";
+    answered=false;
+    updateUI();
+    const questions=modeQuestions[currentMode];
+    if(!questions || !questions.length){area.innerHTML='<div class="question-title">Bu seviyede soru bulunmuyor.</div>';return;}
+    const q=questions[currentQuestion];
+    if(currentMode==="matching")renderMatching(q);
+    else if(currentMode==="puzzle")renderPuzzle(q);
+    else if(currentMode==="completion")renderCompletion(q);
+    else if(currentMode==="sentence")renderSentence(q);
+    else if(currentMode==="dictation")renderDictation(q);
+    else if(currentMode==="letters")renderLetters(q);
+    else if(currentMode==="hint")renderHint(q);
+    else if(currentMode==="story")renderStory(q);
+}
+
+/* =========================================================
+   YENİ OYUN MODLARI
+========================================================= */
+function renderPuzzle(q){
+    const choices=shuffle([q,...shuffle(wordPool[currentLevel].filter(x=>x[0]!==q.ar)).slice(0,3).map(x=>({ar:x[0],tr:x[1]}))]);
+    document.getElementById("gameArea").innerHTML=`<div class="mode-panel"><div class="question-title">🧩 Türkçe ipucuna uyan Arapça kelimeyi bul.</div><div class="hint-box"><strong>İpucu:</strong> ${q.tr}</div><div class="option-grid">${choices.map(o=>`<button class="option arabic" onclick='checkWordChoice(${JSON.stringify(o.ar)},${JSON.stringify(q.ar)},this)'>${o.ar}</button>`).join("")}</div></div>`;
+}
+function checkWordChoice(choice,correct,btn){if(answered)return;if(normalizeArabic(choice)===normalizeArabic(correct)){btn.classList.add("correct");answered=true;reward(12,"🎉 Doğru! +12 XP");}else{btn.classList.add("wrong");fail("❌ Tekrar dene.");setTimeout(()=>btn.classList.remove("wrong"),500)}}
+
+function renderCompletion(q){
+    const opts=shuffle([q.tr,...shuffle(wordPool[currentLevel].filter(x=>x[1]!==q.tr)).slice(0,3).map(x=>x[1])]);
+    document.getElementById("gameArea").innerHTML=`<div class="mode-panel"><div class="question-title">✏️ Arapça kelimenin Türkçe anlamını seç.</div><div class="hero-word"><div class="arabic">${q.ar}</div></div><div class="option-grid">${opts.map(o=>`<button class="option" onclick='checkCompletion(${JSON.stringify(o)},${JSON.stringify(q.tr)},this)'>${o}</button>`).join("")}</div></div>`;
+}
+function checkCompletion(choice,correct,btn){if(answered)return;if(choice===correct){btn.classList.add("correct");answered=true;reward(10,"✅ Doğru! +10 XP");}else{btn.classList.add("wrong");fail("❌ Yanlış cevap.");setTimeout(()=>btn.classList.remove("wrong"),500)}}
+
+function renderDictation(q){
+    window.currentDictation=q[0];
+    document.getElementById("gameArea").innerHTML=`<div class="mode-panel" style="text-align:center"><div class="question-title">🎧 Cümleyi dinle ve Arapça olarak yaz.</div><button class="dictation-speaker" onclick="speakDictation()">🔊</button><div class="subtext">Anlamı: ${q[1]}</div><div class="answer-box" style="margin-top:22px"><input id="dictationInput" dir="rtl" class="arabic" placeholder="Duyduğun cümleyi yaz..."><button class="primary-btn" onclick='checkDictation(${JSON.stringify(q[0])})'>Kontrol Et</button></div></div>`;
+}
+function speakDictation(){if(!('speechSynthesis' in window)){fail("Tarayıcın sesli okumayı desteklemiyor.");return;}speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(window.currentDictation||"");u.lang="ar-SA";u.rate=.75;speechSynthesis.speak(u)}
+function checkDictation(correct){if(answered)return;const input=document.getElementById("dictationInput").value;if(normalizeArabic(input)===normalizeArabic(correct)){answered=true;reward(18,"🎧 Harika dikte! +18 XP");}else fail("❌ Henüz doğru değil. Tekrar dinleyebilirsin.")}
+
+function renderLetters(q){
+    const clean=q.ar.replace(/[ًٌٍَُِّْـ]/g,"").replace(/\s/g,"");
+    const letters=shuffle([...clean]); window.letterAnswer=[];
+    document.getElementById("gameArea").innerHTML=`<div class="mode-panel"><div class="question-title">🔤 Harfleri doğru sıraya diz.</div><div class="hint-box">Türkçe anlam: <strong>${q.tr}</strong></div><div id="letterAnswer" class="answer-display"></div><div class="puzzle-letters">${letters.map((l,i)=>`<button id="letter${i}" class="letter-tile" onclick='pickLetter(${i},${JSON.stringify(l)})'>${l}</button>`).join("")}</div><div style="text-align:center"><button class="primary-btn" onclick='checkLetters(${JSON.stringify(clean)})'>Kontrol Et</button><button class="secondary-btn" onclick="resetLetters()">Temizle</button></div></div>`;
+}
+function pickLetter(i,l){const b=document.getElementById("letter"+i);if(b.classList.contains("used"))return;b.classList.add("used");window.letterAnswer.push({i,l});document.getElementById("letterAnswer").textContent=window.letterAnswer.map(x=>x.l).join("")}
+function resetLetters(){window.letterAnswer=[];document.getElementById("letterAnswer").textContent="";document.querySelectorAll('.letter-tile').forEach(x=>x.classList.remove('used'))}
+function checkLetters(correct){if(answered)return;const user=window.letterAnswer.map(x=>x.l).join("");if(user===correct){answered=true;reward(15,"🔤 Harika! Kelimeyi doğru oluşturdun. +15 XP");}else fail("❌ Harf sırası doğru değil.")}
+
+function renderHint(q){
+    const opts=shuffle([q,...shuffle(wordPool[currentLevel].filter(x=>x[0]!==q.ar)).slice(0,3).map(x=>({ar:x[0],tr:x[1]}))]);
+    document.getElementById("gameArea").innerHTML=`<div class="mode-panel"><div class="question-title">🧠 İpucundan kelimeyi bul.</div><div class="hint-box">Bu kelimenin Türkçe anlamı: <strong>${q.tr}</strong></div><div class="option-grid">${opts.map(o=>`<button class="option arabic" onclick='checkHint(${JSON.stringify(o.ar)},${JSON.stringify(q.ar)},this)'>${o.ar}</button>`).join("")}</div></div>`;
+}
+function checkHint(choice,correct,btn){if(answered)return;if(normalizeArabic(choice)===normalizeArabic(correct)){btn.classList.add("correct");answered=true;reward(12,"🧠 Doğru kelime! +12 XP");}else{btn.classList.add("wrong");fail("❌ Bu değil. Tekrar dene.");setTimeout(()=>btn.classList.remove("wrong"),500)}}
+
+/* =========================================================
+   EŞLEŞTİRME
+========================================================= */
+
+function renderMatching(q){
+
+    selectedLeft=null;
+    selectedRight=null;
+
+    const area=document.getElementById("gameArea");
+
+    const shuffledRight=shuffle(q.items);
+
+    area.innerHTML=`
+        <div class="question-title">
+            Arapça kelimeleri Türkçe anlamlarıyla eşleştir.
+        </div>
+
+        <div class="match-grid">
+
+            <div class="match-column" id="leftMatches">
+
+                ${q.items.map((item,index)=>`
+
+                    <button
+                        class="match-card arabic"
+                        data-index="${index}"
+                        onclick="selectLeftMatch(${index})">
+
+                        ${item.ar}
+
+                    </button>
+
+                `).join("")}
+
+            </div>
+
+            <div class="match-column" id="rightMatches">
+
+                ${shuffledRight.map(item=>{
+
+                    const originalIndex=q.items.findIndex(
+                        x=>x.tr===item.tr
+                    );
+
+                    return `
+                        <button
+                            class="match-card"
+                            data-index="${originalIndex}"
+                            onclick="selectRightMatch(${originalIndex})">
+
+                            ${item.tr}
+
+                        </button>
+                    `;
+
+                }).join("")}
+
+            </div>
+
+        </div>
+    `;
+}
+
+
+function selectLeftMatch(index){
+
+    if(answered)return;
+
+    selectedLeft=index;
+
+    document.querySelectorAll("#leftMatches .match-card")
+        .forEach(card=>card.classList.remove("selected"));
+
+    document
+        .querySelector(`#leftMatches .match-card[data-index="${index}"]`)
+        .classList.add("selected");
+
+    checkMatchingPair();
+}
+
+
+function selectRightMatch(index){
+
+    if(answered)return;
+
+    selectedRight=index;
+
+    document.querySelectorAll("#rightMatches .match-card")
+        .forEach(card=>card.classList.remove("selected"));
+
+    document
+        .querySelector(`#rightMatches .match-card[data-index="${index}"]`)
+        .classList.add("selected");
+
+    checkMatchingPair();
+}
+
+
+function checkMatchingPair(){
+
+    if(selectedLeft===null || selectedRight===null)return;
+
+    const left=document.querySelector(
+        `#leftMatches .match-card[data-index="${selectedLeft}"]`
+    );
+
+    const right=document.querySelector(
+        `#rightMatches .match-card[data-index="${selectedRight}"]`
+    );
+
+    if(selectedLeft===selectedRight){
+
+        left.classList.remove("selected");
+        right.classList.remove("selected");
+
+        left.classList.add("correct");
+        right.classList.add("correct");
+
+        reward(10,"✅ Doğru eşleştirme! +10 XP");
+
+        selectedLeft=null;
+        selectedRight=null;
+
+        const remaining=document.querySelectorAll(
+            "#leftMatches .match-card:not(.correct)"
+        );
+
+        if(remaining.length===0){
+
+            answered=true;
+
+            document.getElementById("feedback").textContent=
+                "🎉 Harika! Tüm kelimeleri eşleştirdin.";
+        }
+
+    }else{
+
+        left.classList.add("wrong");
+        right.classList.add("wrong");
+
+        fail("❌ Yanlış eşleştirme.");
+
+        setTimeout(()=>{
+
+            left.classList.remove("wrong","selected");
+            right.classList.remove("wrong","selected");
+
+        },600);
+
+        selectedLeft=null;
+        selectedRight=null;
+    }
+
+    updateUI();
+}
+
+
+/* =========================================================
+   CÜMLE KURMA
+========================================================= */
+
+function renderSentence(q){
+
+    const words=q[0]
+        .replace(/[.,!?]/g,"")
+        .split(" ");
+
+    const shuffled=shuffle(words);
+
+    window.sentenceSelected=[];
+
+    const area=document.getElementById("gameArea");
+
+    area.innerHTML=`
+
+        <div class="question-title">
+            Kelimeleri doğru sıraya koy.
+        </div>
+
+        <div
+            id="sentenceAnswer"
+            class="answer-box arabic"
+            style="
+                min-height:90px;
+                border:2px dashed #cbd5e1;
+                padding:20px;
+                border-radius:12px;
+                text-align:center;
+            ">
+        </div>
+
+        <div
+            class="option-grid"
+            style="margin-top:20px;">
+
+            ${shuffled.map((word,index)=>`
+
+                <button
+                    class="option arabic"
+                    id="sentenceWord${index}"
+                    onclick="selectSentenceWord(
+                        ${index},
+                        '${word.replace(/'/g,"\\'")}'
+                    )">
+
+                    ${word}
+
+                </button>
+
+            `).join("")}
+
+        </div>
+
+        <div style="text-align:center;">
+
+            <button
+                class="primary-btn"
+                onclick="checkSentence(
+                    '${q[0].replace(/'/g,"\\'")}'
+                )">
+
+                Cümleyi Kontrol Et
+
+            </button>
+
+            <button
+                class="secondary-btn"
+                onclick="resetSentence()">
+
+                Temizle
+
+            </button>
+
+        </div>
+
+        <div
+            class="subtext"
+            style="text-align:center">
+
+            Anlamı: ${q[1]}
+
+        </div>
+    `;
+}
+
+
+function selectSentenceWord(index,word){
+
+    if(answered)return;
+
+    const button=document.getElementById("sentenceWord"+index);
+
+    if(button.classList.contains("correct"))return;
+
+    button.classList.add("correct");
+
+    window.sentenceSelected.push(word);
+
+    document.getElementById("sentenceAnswer").textContent=
+        window.sentenceSelected.join(" ");
+}
+
+
+function resetSentence(){
+
+    window.sentenceSelected=[];
+
+    document.getElementById("sentenceAnswer").textContent="";
+
+    document.querySelectorAll('[id^="sentenceWord"]')
+        .forEach(btn=>btn.classList.remove("correct"));
+}
+
+
+function checkSentence(correctSentence){
+
+    if(answered)return;
+
+    const user=window.sentenceSelected.join(" ");
+
+    if(normalizeArabic(user)===normalizeArabic(correctSentence)){
+
+        answered=true;
+        reward(15,"🎉 Mükemmel! Cümleyi doğru kurdun. +15 XP");
+
+    }else{
+
+        fail("❌ Cümle sırası doğru değil.");
+    }
+
+    updateUI();
+}
+
+
+/* =========================================================
+   YENİ SİSTEM:
+   HEM BAŞLIK HEM HİKÂYE KELİMELERİ TIKLANABİLİR
+========================================================= */
+
+function clickableArabicText(text){
+
+    return text
+        .trim()
+        .split(/\s+/)
+        .map(word=>{
+
+            const clean=word
+                .replace(/[.,!?،؛:()«»"']/g,"");
+
+            if(!clean)return word;
+
+            return `
+                <span
+                    class="story-word"
+                    onclick="showWordInfo('${clean.replace(/'/g,"\\'")}')">
+
+                    ${word}
+
+                </span>
+            `;
+
+        })
+        .join(" ");
+}
+
+
+/* =========================================================
+   UZUN HİKÂYE RENDER
+========================================================= */
+
+function renderStory(story){
+
+    const area=document.getElementById("gameArea");
+
+    /*
+       Başlık da artık kelime kelime tıklanabilir.
+    */
+
+    const clickableTitle=
+        clickableArabicText(story.title);
+
+    /*
+       Hikâyenin kendisi de kelime kelime tıklanabilir.
+    */
+
+    const clickableStory=
+        clickableArabicText(story.text);
+
+    area.innerHTML=`
+
+        <div class="story-box">
+
+            <div class="story-title">
+
+                ${clickableTitle}
+
+            </div>
+
+
+            <div class="story-tip">
+
+                💡 <strong>Kelime öğrenme ipucu:</strong>
+
+                Hikâyede anlamını bilmediğin herhangi bir
+                Arapça kelimenin üzerine tıkla.
+                Kelimenin Türkçe anlamı açılacaktır.
+
+            </div>
+
+
+            <div
+                class="story-text"
+                style="margin-top:20px;">
+
+                ${clickableStory}
+
+            </div>
+
+
+            <div class="story-translation">
+
+                <strong>🇹🇷 Hikâyenin Türkçe karşılığı:</strong>
+
+                <br><br>
+
+                ${story.tr}
+
+            </div>
+
+
+            <div class="story-work">
+
+
+                <!-- NOT ALANI -->
+
+                <div class="work-card">
+
+                    <h3>📝 Notlarım</h3>
+
+                    <p class="subtext">
+
+                        Hikâyeyi okurken önemli olayları,
+                        yeni kelimeleri veya kendi düşüncelerini
+                        buraya yazabilirsin.
+
+                    </p>
+
+                    <textarea
+                        id="storyNotes"
+                        placeholder="Hikâyeden aldığın notları buraya yaz..."
+                        oninput="saveStoryWork()">
+                    </textarea>
+
+                    <button
+                        class="secondary-btn"
+                        onclick="clearNotes()">
+
+                        🗑️ Notları Temizle
+
+                    </button>
+
+                </div>
+
+
+                <!-- ÖZET -->
+
+                <div class="work-card">
+
+                    <h3>📋 Hikâyeyi Özetle</h3>
+
+                    <p class="subtext">
+
+                        Hikâyenin ana olaylarını kendi
+                        cümlelerinle anlat.
+
+                    </p>
+
+                    <textarea
+                        id="storySummary"
+                        placeholder="Hikâyenin özetini yaz..."
+                        oninput="saveStoryWork()">
+                    </textarea>
+
+                    <div
+                        id="summaryCount"
+                        class="subtext">
+
+                        0 kelime
+
+                    </div>
+
+                    <button
+                        class="primary-btn"
+                        onclick="checkSummary()">
+
+                        ✓ Özeti Kontrol Et
+
+                    </button>
+
+                </div>
+
+
+                <!-- HİKÂYEYE DEVAM -->
+
+                <div class="work-card full">
+
+                    <h3>✍️ Hikâyeye Sen Devam Et</h3>
+
+                    <p class="subtext">
+
+                        Hikâyenin sonundan yola çıkarak
+                        kendi devamını yaz.
+
+                        Olayların önceki bölümle bağlantılı
+                        olmasına dikkat et.
+
+                    </p>
+
+
+                    <div
+                        style="
+                            background:#eff6ff;
+                            border:1px solid #bfdbfe;
+                            padding:18px;
+                            border-radius:12px;
+                            margin:15px 0;
+                            direction:rtl;
+                            text-align:right;
+                            font-size:21px;
+                            line-height:2;
+                        ">
+
+                        ${getStoryEnding(story)}...
+
+                    </div>
+
+
+                    <textarea
+                        id="storyContinuation"
+                        dir="rtl"
+                        placeholder="هنا اكتب استمرار القصة..."
+                        oninput="saveStoryWork()">
+                    </textarea>
+
+
+                    <div
+                        id="continuationCount"
+                        class="subtext">
+
+                        0 kelime
+
+                    </div>
+
+
+                    <button
+                        class="primary-btn"
+                        onclick="saveContinuation()">
+
+                        💾 Devamımı Kaydet
+
+                    </button>
+
+
+                    <button
+                        class="secondary-btn"
+                        onclick="clearContinuation()">
+
+                        Temizle
+
+                    </button>
+
+                </div>
+
+            </div>
+
+        </div>
+    `;
+
+    loadStoryWork();
+}
+
+
+/* =========================================================
+   HİKÂYE SON CÜMLESİ
+========================================================= */
+
+function getStoryEnding(story){
+
+    const sentences=story.text
+        .split(/[.!؟]/)
+        .map(x=>x.trim())
+        .filter(Boolean);
+
+    if(!sentences.length)return story.text;
+
+    return sentences[sentences.length-1];
+}
+
+
+/* =========================================================
+   HİKÂYE KAYDETME
+========================================================= */
+
+function storyStorageKey(){
+
+    return `arabicStory_${currentLevel}_${currentQuestion}`;
+}
+
+
+function saveStoryWork(){
+
+    const notes=document.getElementById("storyNotes");
+    const summary=document.getElementById("storySummary");
+    const continuation=document.getElementById("storyContinuation");
+
+    const data={
+        notes:notes ? notes.value : "",
+        summary:summary ? summary.value : "",
+        continuation:continuation ? continuation.value : ""
+    };
+
+    localStorage.setItem(
+        storyStorageKey(),
+        JSON.stringify(data)
+    );
+
+    updateStoryCounters();
+}
+
+
+function loadStoryWork(){
+
+    const saved=
+        localStorage.getItem(storyStorageKey());
+
+    if(!saved)return;
+
+    try{
+
+        const data=JSON.parse(saved);
+
+        const notes=document.getElementById("storyNotes");
+        const summary=document.getElementById("storySummary");
+        const continuation=document.getElementById("storyContinuation");
+
+        if(notes)notes.value=data.notes || "";
+        if(summary)summary.value=data.summary || "";
+        if(continuation)continuation.value=data.continuation || "";
+
+        updateStoryCounters();
+
+    }catch(e){
+
+        console.log("Hikâye kaydı okunamadı.");
+
+    }
+}
+
+
+function updateStoryCounters(){
+
+    const summary=
+        document.getElementById("storySummary");
+
+    const continuation=
+        document.getElementById("storyContinuation");
+
+
+    if(summary){
+
+        const count=summary.value
+            .trim()
+            .split(/\s+/)
+            .filter(Boolean)
+            .length;
+
+        document.getElementById("summaryCount").textContent=
+            `${count} kelime`;
+    }
+
+
+    if(continuation){
+
+        const count=continuation.value
+            .trim()
+            .split(/\s+/)
+            .filter(Boolean)
+            .length;
+
+        document.getElementById("continuationCount").textContent=
+            `${count} kelime`;
+    }
+}
+
+
+function clearNotes(){
+
+    const notes=
+        document.getElementById("storyNotes");
+
+    if(notes)notes.value="";
+
+    saveStoryWork();
+}
+
+
+function clearContinuation(){
+
+    const continuation=
+        document.getElementById("storyContinuation");
+
+    if(continuation)continuation.value="";
+
+    saveStoryWork();
+}
+
+
+function saveContinuation(){
+
+    const continuation=
+        document.getElementById("storyContinuation");
+
+    if(!continuation || !continuation.value.trim()){
+
+        document.getElementById("feedback").textContent=
+            "⚠️ Önce hikâyenin devamını yazmalısın.";
+
+        return;
+    }
+
+    saveStoryWork();
+
+    score+=5;
+
+    document.getElementById("feedback").textContent=
+        "💾 Hikâyeye devam yazın kaydedildi! +5 puan";
+
+    updateUI();
+}
+
+
+function checkSummary(){
+
+    const summary=
+        document.getElementById("storySummary");
+
+    if(!summary || !summary.value.trim()){
+
+        document.getElementById("feedback").textContent=
+            "⚠️ Önce hikâyenin özetini yazmalısın.";
+
+        return;
+    }
+
+    const wordCount=
+        summary.value
+        .trim()
+        .split(/\s+/)
+        .filter(Boolean)
+        .length;
+
+
+    if(wordCount<10){
+
+        document.getElementById("feedback").textContent=
+            "📝 Özet biraz kısa. En az 10 kelimeyle anlatmayı dene.";
+
+        return;
+    }
+
+    score+=10;
+
+    document.getElementById("feedback").textContent=
+        "🎉 Özet tamamlandı! +10 puan";
+
+    saveStoryWork();
+
+    updateUI();
+}
+
+
+/* =========================================================
+   KELİME SÖZLÜĞÜ
+========================================================= */
+
+function showWordInfo(word){
+
+    document.getElementById("infoArabic").textContent=word;
+
+    const found=findWordTranslation(word);
+
+    document.getElementById("infoTurkish").textContent=
+        found || "Bu kelime için Türkçe anlam bulunamadı.";
+
+    document.getElementById("wordInfo")
+        .classList.add("show");
+
+    document.getElementById("overlay")
+        .classList.add("show");
+}
+
+
+function findWordTranslation(word){
+
+    const normalized=normalizeArabic(word);
+
+    for(const level of Object.keys(wordPool)){
+
+        for(const item of wordPool[level]){
+
+            if(normalizeArabic(item[0])===normalized){
+
+                return item[1];
+            }
+        }
+    }
+
+    const dictionary={
+
+        "في":"içinde / -de / -da",
+        "إلى":"-e / -a",
+        "من":"-den / -dan",
+        "مع":"ile",
+        "على":"üzerinde / üzerine",
+        "كان":"idi",
+        "كانت":"idi",
+        "هذا":"bu",
+        "هذه":"bu",
+        "الذي":"ki / olan",
+        "التي":"ki / olan",
+        "ثم":"sonra",
+        "بعد":"sonra",
+        "قبل":"önce",
+        "لكن":"fakat / ama",
+        "لأن":"çünkü",
+        "لذلك":"bu nedenle",
+        "أصبح":"oldu",
+        "أراد":"istedi",
+        "قرر":"karar verdi",
+        "بدأ":"başladı",
+        "رأى":"gördü",
+        "ذهب":"gitti",
+        "جاء":"geldi",
+        "دخل":"girdi",
+        "خرج":"çıktı",
+        "جلس":"oturdu",
+        "قرأ":"okudu",
+        "كتب":"yazdı",
+        "فكر":"düşündü",
+        "وجد":"buldu",
+        "عمل":"çalıştı",
+        "ساعد":"yardım etti",
+        "تعلم":"öğrendi",
+        "نجح":"başardı",
+        "قال":"dedi",
+        "عرف":"bildi",
+        "فهم":"anladı",
+        "كل":"her / bütün",
+        "يوم":"gün",
+        "اليوم":"bugün",
+        "غدا":"yarın",
+        "أمس":"dün"
+    };
+
+    return dictionary[normalized];
+}
+
+
+function closeWordInfo(){
+
+    document.getElementById("wordInfo")
+        .classList.remove("show");
+
+    document.getElementById("overlay")
+        .classList.remove("show");
+}
+
+
+/* =========================================================
+   SONRAKİ
+========================================================= */
+
+function nextQuestion(){
+
+    const questions=modeQuestions[currentMode];
+
+    if(!questions)return;
+
+    if(currentQuestion<questions.length-1){
+
+        currentQuestion++;
+
+        loadQuestion();
+
+    }else{
+
+        onLevelComplete();
+    }
+}
+
+
+function onLevelComplete(){
+
+    document.getElementById("gameArea").innerHTML=`
+
+        <div style="
+            text-align:center;
+            padding:60px 20px;
+        ">
+
+            <div style="font-size:70px;">
+                🎉
+            </div>
+
+            <h2 style="margin:20px 0;">
+                ${levelNames[currentLevel]} seviyesini tamamladın!
+            </h2>
+
+            <p style="font-size:20px;">
+                Bu bölümdeki tüm çalışmaları tamamladın.
+            </p>
+
+            <p style="
+                font-size:28px;
+                font-weight:bold;
+                margin:20px;
+            ">
+                ⭐ Toplam Puan: ${score}
+            </p>
+
+            <button
+                class="primary-btn"
+                onclick="restartMode()">
+
+                🔄 Bu Modu Tekrar Başlat
+
+            </button>
+
+        </div>
+    `;
+
+    document.getElementById("feedback").textContent="";
+}
+
+
+function restartMode(){
+
+    currentQuestion=0;
+
+    prepareQuestions();
+}
+
+
+/* =========================================================
+   BAŞLAT
+========================================================= */
+
+prepareQuestions();
+
+</script>
+
+</body>
+</html>
+```
